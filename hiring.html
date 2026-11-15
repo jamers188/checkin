@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hiring Dashboard</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #ffffff; --ink: #111827; --muted: #6b7280; --line: #e5e7eb; --soft: #f9fafb;
+    --green: #15803d; --greenbg: #dcfce7; --amber: #b45309; --amberbg: #fef3c7; --red: #b91c1c; --redbg: #fee2e2;
+    --blue: #1d4ed8; --bluebg: #dbeafe; --violet: #6d28d9; --violetbg: #ede9fe; --accent: #111827;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b0f14; --card: #151b23; --ink: #e5e7eb; --muted: #9ca3af; --line: #273040; --soft: #10151c;
+      --green: #4ade80; --greenbg: #0f2e1c; --amber: #fbbf24; --amberbg: #332507; --red: #fca5a5; --redbg: #3b1212;
+      --blue: #93c5fd; --bluebg: #172554; --violet: #c4b5fd; --violetbg: #2e1065; --accent: #e5e7eb; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 18px 16px 60px; }
+  .event { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+  h1 { margin: 2px 0 0; font-size: 24px; }
+  header { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: flex-end; }
+  .muted { color: var(--muted); font-size: 13px; }
+  a { color: inherit; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+  .kpi .n { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi .l { font-size: 12px; color: var(--muted); }
+  .kpi.hired .n { color: var(--green); }
+  .bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; margin-top: 8px; border: 1px solid var(--line); }
+  .bar i { display: block; height: 100%; background: var(--green); }
+  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 10px; align-items: center; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
+  .chip.on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  input.search { flex: 1; min-width: 170px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--card); color: var(--ink); }
+  .bulk { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
+  .bulk .grow { flex: 1; min-width: 200px; font-size: 14px; }
+  .list { display: grid; gap: 10px; }
+  .cand { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; border-left-width: 6px; }
+  .cand.g { border-left-color: var(--green); } .cand.y { border-left-color: var(--amber); } .cand.r { border-left-color: var(--red); }
+  .cand.b { border-left-color: var(--blue); } .cand.v { border-left-color: var(--violet); } .cand.n { border-left-color: var(--line); }
+  .top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
+  .name { font-size: 17px; font-weight: 700; }
+  .score { font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); white-space: nowrap; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .p-g { background: var(--greenbg); color: var(--green); } .p-y { background: var(--amberbg); color: var(--amber); }
+  .p-r { background: var(--redbg); color: var(--red); } .p-b { background: var(--bluebg); color: var(--blue); }
+  .p-v { background: var(--violetbg); color: var(--violet); } .p-n { background: var(--soft); color: var(--muted); border: 1px solid var(--line); }
+  .facts { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .flags { font-size: 13px; color: var(--amber); margin-top: 4px; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 9px 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn.pri { background: #15803d; border-color: #15803d; color: #fff; }
+  .btn.blue { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+  .btn.danger { color: var(--red); }
+  select { padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px; }
+  details { margin-top: 10px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  .grid2 { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; font-size: 13px; margin-top: 8px; }
+  .grid2 div:nth-child(odd) { color: var(--muted); }
+  textarea { width: 100%; min-height: 60px; margin-top: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 14px; background: var(--card); color: var(--ink); }
+  .gate { max-width: 360px; margin: 80px auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .gate input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 16px; margin-top: 10px; background: var(--card); color: var(--ink); }
+  .err { background: var(--redbg); color: var(--red); padding: 10px 12px; border-radius: 10px; margin-top: 12px; font-size: 14px; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--accent); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); display: none; z-index: 10; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 0; }
+  .warn { background: var(--amberbg); color: var(--amber); border-radius: 12px; padding: 10px 14px; font-size: 13px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap" id="root"></div>
+<div class="toast" id="toast"></div>
+<script>
+// The Google Apps Script web app behind this page
+const API = 'https://script.google.com/macros/s/AKfycbxBbDeQNsPQRHerWBSaQrDr7QA8hmIEns7xrOvIaFcmk7IOkk_IbLTGSFa1erwR-A4/exec';
+const store = {
+  get() { try { return localStorage.getItem('adminKey'); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem('adminKey', v); } catch (e) {} },
+  del() { try { localStorage.removeItem('adminKey'); } catch (e) {} },
+};
+const root = document.getElementById('root');
+let KEY = store.get(), data = null, filter = 'todo', q = '', busy = false;
+
+// colour group for each status: g green, y yellow, r red, b blue, v violet, n neutral
+const GROUP = { 'Shortlisted': 'g', 'Review': 'y', 'Auto-rejected': 'r', 'Rejected': 'r', 'Declined': 'r',
+  'Invited': 'b', 'Interviewed': 'b', 'Selected': 'v', 'Offer sent': 'v', 'Accepted': 'g', 'Duplicate': 'n', 'Withdrawn': 'n' };
+const LABEL = { 'Shortlisted': '🟢 Fit for interview', 'Review': '🟡 Check manually', 'Auto-rejected': '🔴 Not eligible',
+  'Invited': '✉️ Invited', 'Interviewed': '🗣 Interviewed', 'Selected': '⭐ Selected', 'Offer sent': '📄 Offer sent',
+  'Accepted': '✅ Hired', 'Declined': 'Declined offer', 'Rejected': 'Rejected', 'Duplicate': 'Duplicate', 'Withdrawn': 'Withdrawn' };
+const FILTERS = [
+  ['todo', 'To do', c => ['Shortlisted', 'Review', 'Interviewed', 'Selected'].includes(c.status)],
+  ['Shortlisted', '🟢 Fit', c => c.status === 'Shortlisted'],
+  ['Review', '🟡 Check', c => c.status === 'Review'],
+  ['Invited', '✉️ Invited', c => c.status === 'Invited' || c.status === 'Interviewed'],
+  ['Selected', '⭐ Selected', c => c.status === 'Selected' || c.status === 'Offer sent'],
+  ['Accepted', '✅ Hired', c => c.status === 'Accepted'],
+  ['out', '🔴 Not going ahead', c => ['Auto-rejected', 'Rejected', 'Declined', 'Duplicate', 'Withdrawn'].includes(c.status)],
+  ['all', 'All', () => true],
+];
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function errText(e) { return String((e && e.message) || e).replace(/^Error:\s*/, ''); }
+async function call(fn, ...args) {
+  let r;
+  try {
+    r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args }), redirect: 'follow' });
+  } catch (e) { throw new Error('No connection. Check your internet and try again.'); }
+  const j = await r.json().catch(() => ({ ok: false, error: 'Server error. Try again.' }));
+  if (!j.ok) throw new Error(j.error || 'Something went wrong.');
+  return j.data;
+}
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
+
+function gate(msg) {
+  root.innerHTML = `<div class="gate">
+    <div class="event">Abu Dhabi Finance Week</div><h1>Hiring dashboard</h1>
+    <p class="muted">Enter the admin key to open the dashboard.</p>
+    <form id="g"><input id="k" type="password" placeholder="Admin key" autocomplete="current-password" required>
+    <button class="btn pri" style="width:100%;margin-top:10px">Open</button></form>
+    ${msg ? `<div class="err">${esc(msg)}</div>` : ''}</div>`;
+  document.getElementById('g').onsubmit = ev => { ev.preventDefault(); KEY = document.getElementById('k').value; load(true); };
+}
+
+function shell() {
+  root.innerHTML = `
+    <header>
+      <div><div class="event">Abu Dhabi Finance Week</div><h1>Hiring dashboard</h1></div>
+      <div class="muted">Updated <span id="upd"></span> · <a href="#" id="refresh">Refresh</a> · <a href="#" id="lock">Lock</a></div>
+    </header>
+    <div class="kpis" id="kpis"></div>
+    <div id="notes"></div>
+    <div id="bulk"></div>
+    <div class="tools" id="chips"></div>
+    <div class="tools"><input class="search" id="q" placeholder="Search name, email, nationality…"></div>
+    <div class="list" id="list"></div>`;
+  document.getElementById('q').oninput = e => { q = e.target.value.toLowerCase(); renderList(); };
+  document.getElementById('refresh').onclick = e => { e.preventDefault(); load(); };
+  document.getElementById('lock').onclick = e => { e.preventDefault(); store.del(); KEY = null; data = null; gate(); };
+}
+
+function render() {
+  if (!document.getElementById('kpis')) shell();
+  const k = data.kpis;
+  document.getElementById('upd').textContent = data.updated;
+  const pct = Math.min(100, Math.round((k.Accepted / Math.max(1, k.target)) * 100));
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi"><div class="n">${k.applied}</div><div class="l">Applied</div></div>
+    <div class="kpi"><div class="n">${k.Shortlisted}</div><div class="l">🟢 Fit for interview</div></div>
+    <div class="kpi"><div class="n">${k.Review}</div><div class="l">🟡 Check manually</div></div>
+    <div class="kpi"><div class="n">${k.Invited + k.Interviewed}</div><div class="l">✉️ Invited</div></div>
+    <div class="kpi"><div class="n">${k.Selected + k['Offer sent']}</div><div class="l">⭐ Selected / offer sent</div></div>
+    <div class="kpi hired"><div class="n">${k.Accepted} / ${k.target}</div><div class="l">✅ Hired</div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+
+  document.getElementById('notes').innerHTML =
+    (data.bookingLinkSet ? '' : '<div class="warn">Heads-up: the "Book my interview" link in invite emails is still a placeholder. Add your booking page link before inviting real candidates.</div>') +
+    (data.quota < 10 ? `<div class="warn">Only ${data.quota} emails left today (Gmail daily limit). The rest can go out tomorrow.</div>` : '');
+
+  const toInvite = data.candidates.filter(c => c.status === 'Shortlisted' && !c.inviteSent).length;
+  document.getElementById('bulk').innerHTML = toInvite ? `<div class="bulk">
+      <div class="grow"><b>${toInvite}</b> fit candidate${toInvite > 1 ? 's are' : ' is'} waiting for an interview invite.</div>
+      <button class="btn pri" id="inviteAll">✉️ Invite all ${toInvite}</button></div>` : '';
+  const ia = document.getElementById('inviteAll');
+  if (ia) ia.onclick = async () => {
+    if (!confirm(`Send the interview invite email to ${toInvite} candidate(s)?`)) return;
+    ia.disabled = true; ia.textContent = 'Sending…';
+    try {
+      const r = await call('hiringAction', KEY, '', 'inviteAll', {});
+      toast(`Sent ${r.sent} invite(s).` + (r.left ? ` ${r.left} will need to go tomorrow (daily limit).` : '') + (r.failed.length ? ` Failed: ${r.failed.join(', ')}` : ''));
+      await load();
+    } catch (e) { toast(errText(e)); ia.disabled = false; ia.textContent = `✉️ Invite all ${toInvite}`; }
+  };
+
+  document.getElementById('chips').innerHTML = FILTERS.map(([id, label, fn]) =>
+    `<button class="chip ${filter === id ? 'on' : ''}" data-f="${id}">${esc(label)} (${data.candidates.filter(fn).length})</button>`).join('');
+  document.querySelectorAll('#chips .chip').forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
+  renderList();
+}
+
+function facts(c) {
+  const days = c.days ? c.days.split(',').filter(Boolean).length : 0;
+  return [c.experience && `Experience: ${c.experience}`, c.english && `English ${c.english}/5`,
+    `${days}/4 days`, c.languages, c.nationality, c.age && `Age ${c.age}`].filter(Boolean).map(esc).join(' · ');
+}
+
+function actions(c) {
+  const roleSel = `<select data-role="${esc(c.id)}"><option value="">Choose role…</option>${data.roles.map(r =>
+    `<option ${c.role === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>`;
+  const wa = c.wa ? `<a class="btn" href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+  switch (c.status) {
+    case 'Shortlisted': case 'Review':
+      return `<button class="btn pri" data-a="invite">✉️ Invite to interview</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
+    case 'Invited':
+      return `<button class="btn" data-a="interviewed">🗣 Mark interviewed</button><button class="btn blue" data-a="select">⭐ Select</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
+    case 'Interviewed':
+      return `${roleSel}<button class="btn blue" data-a="select">⭐ Select</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
+    case 'Selected':
+      return `${roleSel}<button class="btn pri" data-a="offer">📄 Send offer</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
+    case 'Offer sent':
+      return `<span class="muted">Waiting for their reply (sent ${esc(c.offerSent)})</span>${wa}`;
+    case 'Accepted':
+      return `<span class="pill p-g">Hired as ${esc(c.role || '—')}</span>${wa}`;
+    case 'Auto-rejected':
+      return `<button class="btn" data-a="review">Move to "Check manually"</button>`;
+    default:
+      return wa;
+  }
+}
+
+function renderList() {
+  if (!data) return;
+  const fn = (FILTERS.find(f => f[0] === filter) || FILTERS[0])[2];
+  const rows = data.candidates.filter(fn).filter(c => !q ||
+    [c.name, c.email, c.nationality, c.id, c.roles].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => b.score - a.score);
+  const list = document.getElementById('list');
+  if (!rows.length) { list.innerHTML = '<div class="empty">Nobody here.</div>'; return; }
+  list.innerHTML = rows.map(c => {
+    const g = GROUP[c.status] || 'n';
+    return `<div class="cand ${g}" data-id="${esc(c.id)}">
+      <div class="top">
+        <div><div class="name">${esc(c.name)}</div><div class="muted">${esc(c.id)} · applied ${esc(c.submitted)}</div></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="score">Score ${c.score}</span><span class="pill p-${g}">${esc(LABEL[c.status] || c.status)}</span></div>
+      </div>
+      <div class="facts">${facts(c)}</div>
+      <div class="facts">Wants: ${esc(c.roles || '—')}</div>
+      ${c.flags ? `<div class="flags">⚠ ${esc(c.flags)}</div>` : ''}
+      <div class="acts">${actions(c)}</div>
+      <details><summary>Details & notes</summary>
+        <div class="grid2">
+          <div>Email</div><div>${esc(c.email)}</div>
+          <div>Phone</div><div>${esc(c.phone)}</div>
+          <div>Lives in UAE</div><div>${esc(c.inUae)}</div>
+          <div>Visa</div><div>${esc(c.visa)}</div>
+          <div>Days available</div><div>${esc(c.days)}</div>
+          <div>Training</div><div>${esc(c.training)}</div>
+          <div>CV / LinkedIn</div><div>${c.cv ? `<a href="${esc(/^https?:/i.test(c.cv) ? c.cv : 'https://' + c.cv)}" target="_blank" rel="noopener">${esc(c.cv)}</a>` : '—'}</div>
+          <div>About them</div><div>${esc(c.about || '—')}</div>
+          <div>Invite sent</div><div>${esc(c.inviteSent || '—')}</div>
+          <div>Offer sent</div><div>${esc(c.offerSent || '—')}</div>
+        </div>
+        <textarea data-notes="${esc(c.id)}" placeholder="Interview notes…">${esc(c.notes)}</textarea>
+        <button class="btn" data-a="notes">Save notes</button>
+      </details>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.cand').forEach(card => {
+    const id = card.dataset.id;
+    const c = data.candidates.find(x => x.id === id);
+    card.querySelectorAll('[data-a]').forEach(btn => btn.onclick = () => act(c, btn.dataset.a, btn, card));
+  });
+}
+
+async function act(c, a, btn, card) {
+  const sel = card.querySelector('select[data-role]');
+  const role = sel ? sel.value : undefined;
+  let action, opts = {}, ask = null;
+  if (a === 'invite') { action = 'invite'; ask = `Send the interview invite email to ${c.name}?`; }
+  else if (a === 'interviewed') { action = 'status'; opts.status = 'Interviewed'; }
+  else if (a === 'select') { action = 'status'; opts.status = 'Selected'; if (role !== undefined) opts.role = role; }
+  else if (a === 'offer') {
+    if (!role && !c.role) { toast('Choose a role first.'); return; }
+    action = 'offer'; if (role) opts.role = role;
+    ask = `Send the job offer to ${c.name} as ${role || c.role}?`;
+  }
+  else if (a === 'reject') { action = 'reject'; ask = `Reject ${c.name}? They will get a polite "not this time" email.`; }
+  else if (a === 'review') { action = 'status'; opts.status = 'Review'; }
+  else if (a === 'notes') { action = 'save'; opts.notes = card.querySelector('textarea[data-notes]').value; }
+  if (ask && !confirm(ask)) return;
+  const old = btn.textContent; btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const updated = await call('hiringAction', KEY, c.id, action, opts);
+    const i = data.candidates.findIndex(x => x.id === c.id);
+    data.candidates[i] = updated;
+    toast({ invite: `Invite sent to ${c.name} ✓`, offer: `Offer sent to ${c.name} ✓`, reject: `${c.name} rejected`, save: 'Notes saved ✓' }[action] || 'Updated ✓');
+    load();
+  } catch (e) { toast(errText(e)); btn.disabled = false; btn.textContent = old; }
+}
+
+async function load(first) {
+  if (busy) return; busy = true;
+  try {
+    data = await call('hiring', KEY);
+    if (first) store.set(KEY);
+    render();
+  } catch (e) {
+    const m = errText(e);
+    if (/admin key/i.test(m)) { store.del(); KEY = null; gate(m); }
+    else if (first || !data) gate(m);
+    else toast(m);
+  } finally { busy = false; }
+}
+
+setInterval(() => {
+  const typing = document.activeElement && /TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName);
+  if (KEY && data && !document.hidden && !typing) load();
+}, 60000);
+
+if (KEY) { root.innerHTML = '<div class="empty">Loading…</div>'; load(true); } else gate();
+</script>
+</body>
+</html>
