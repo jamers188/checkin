@@ -73,6 +73,7 @@
 
   /* layout: filters + content */
   .main { display: grid; grid-template-columns: 260px 1fr; gap: 12px; margin-top: 12px; align-items: start; }
+  .main > section, .main > aside { min-width: 0; }
   @media (max-width: 1000px) { .main { grid-template-columns: 1fr; } }
   .side { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; }
   @media (max-width: 1000px) { .side { position: static; max-height: none; } }
