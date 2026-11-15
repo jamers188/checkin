@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff Check-in</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --card: #ffffff; --ink: #111827; --muted: #6b7280; --line: #e5e7eb;
+    --ok: #15803d; --okbg: #dcfce7; --bad: #b91c1c; --badbg: #fee2e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0b0f14; --card: #151b23; --ink: #e5e7eb; --muted: #9ca3af; --line: #273040;
+      --ok: #4ade80; --okbg: #0f2e1c; --bad: #fca5a5; --badbg: #3b1212; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  .wrap { max-width: 440px; margin: 0 auto; padding: 20px 16px 48px; }
+  .event { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-top: 14px; }
+  h1 { font-size: 22px; margin: 2px 0 0; }
+  .zone { font-size: 28px; font-weight: 700; margin: 4px 0 2px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .btn { display: block; width: 100%; border: 0; border-radius: 12px; padding: 16px; font-size: 17px; font-weight: 600; cursor: pointer; margin-top: 14px; }
+  .btn:disabled { opacity: .6; }
+  .primary { background: #15803d; color: #fff; }
+  .secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  input { width: 100%; padding: 14px; font-size: 17px; border: 1px solid var(--line); border-radius: 10px; margin-top: 6px; background: var(--card); color: var(--ink); }
+  label { font-size: 14px; color: var(--muted); display: block; margin-top: 14px; }
+  .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+  .on { background: var(--okbg); color: var(--ok); }
+  .off { background: var(--line); color: var(--muted); }
+  .msg { padding: 12px 14px; border-radius: 10px; margin-top: 14px; font-weight: 600; }
+  .msg.ok { background: var(--okbg); color: var(--ok); }
+  .msg.err { background: var(--badbg); color: var(--bad); }
+  .link { background: none; border: 0; color: var(--muted); text-decoration: underline; font-size: 14px; margin-top: 20px; cursor: pointer; padding: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="event" id="event"></div>
+  <div id="app"><div class="card muted">Loading…</div></div>
+</div>
+<script>
+// Your Google Apps Script web app (the data connector behind this page)
+const API = 'https://script.google.com/macros/s/AKfycbxBbDeQNsPQRHerWBSaQrDr7QA8hmIEns7xrOvIaFcmk7IOkk_IbLTGSFa1erwR-A4/exec';
+const params = new URLSearchParams(location.search);
+const BOOT = { zone: params.get('zone') || '', token: params.get('t') || '', zones: [], event: '', shiftStart: '' };
+const KEY = 'staffToken';
+const store = {
+  get() { try { return localStorage.getItem(KEY); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem(KEY, v); } catch (e) {} },
+  del() { try { localStorage.removeItem(KEY); } catch (e) {} },
+};
+const app = document.getElementById('app');
+let zone = null;
+let token = BOOT.token || store.get();
+if (BOOT.token) {
+  store.set(BOOT.token);
+  params.delete('t');                       // keep the personal token out of the address bar
+  history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : ''));
+}
+let me = null, flash = null;
+let geo = null, geoState = 'idle', geoErr = null, geoPromise = null;
+
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function errText(e) { return String((e && e.message) || e).replace(/^Error:\s*/, ''); }
+const FN = { apiLogin: 'login', apiMe: 'me', apiAction: 'action', apiConfig: 'config' };
+async function call(fn, ...args) {
+  let r;
+  try {
+    r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: FN[fn], args: args }), redirect: 'follow' });
+  } catch (e) { throw new Error('No connection. Check your internet and try again.'); }
+  const j = await r.json().catch(() => ({ ok: false, error: 'Server error. Try again.' }));
+  if (!j.ok) throw new Error(j.error || 'Something went wrong.');
+  return j.data;
+}
+function logout(msg) { store.del(); token = null; me = null; renderLogin(msg); }
+
+async function start() {
+  try {
+    const c = await call('apiConfig');
+    Object.assign(BOOT, { zones: c.zones, event: c.event, shiftStart: c.shiftStart });
+    zone = BOOT.zones.find(z => z.code === String(BOOT.zone).toUpperCase()) || null;
+    document.getElementById('event').textContent = BOOT.event + ' · Staff check-in';
+    document.title = 'Check-in – ' + BOOT.event;
+  } catch (e) { app.innerHTML = `<div class="msg err">${esc(errText(e))}</div>`; return; }
+  if (!token) return renderLogin();
+  try { me = await call('apiMe', token); render(); }
+  catch (e) { const m = errText(e); if (/SESSION/.test(m)) return logout(); app.innerHTML = `<div class="msg err">${esc(m)}</div>`; }
+}
+
+function renderLogin(msg) {
+  app.innerHTML = `<div class="card">
+    <h1>Log in</h1>
+    <p class="muted">Use the Staff ID and PIN from your staff pass email. You only need to do this once on this phone.</p>
+    ${zone ? `<p class="muted">Zone: <b>${esc(zone.name)}</b></p>` : ''}
+    <form id="f">
+      <label for="sid">Staff ID</label>
+      <input id="sid" autocapitalize="characters" autocomplete="username" placeholder="e.g. C0012" required>
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="4 digits" required>
+      <button class="btn primary" id="go">Log in</button>
+    </form>
+    ${msg ? `<div class="msg err">${esc(msg)}</div>` : ''}
+  </div>`;
+  document.getElementById('f').onsubmit = async ev => {
+    ev.preventDefault();
+    const b = document.getElementById('go');
+    b.disabled = true; b.textContent = 'Checking…';
+    try {
+      const r = await call('apiLogin', document.getElementById('sid').value, document.getElementById('pin').value);
+      token = r.token; store.set(token); me = r.me; render();
+    } catch (e) { renderLogin(errText(e)); }
+  };
+}
+
+function render() {
+  const on = me.state === 'On site';
+  const status = on
+    ? `<span class="pill on">On site</span> <span class="muted">${esc(me.zoneName)} · since ${esc(me.since)}</span>`
+    : me.state === 'Checked out'
+      ? `<span class="pill off">Checked out</span> <span class="muted">at ${esc(me.since)}</span>`
+      : `<span class="pill off">Not checked in today</span>`;
+
+  let main;
+  if (zone && on && me.zone === zone.code) {
+    main = `<div class="card"><div class="muted">You're at</div><div class="zone">${esc(zone.name)}</div>
+      <div class="msg ok">You're checked in here ✓</div></div>`;
+  } else if (zone) {
+    main = `<div class="card"><div class="muted">${on ? 'Moving to' : 'Check in at'}</div><div class="zone">${esc(zone.name)}</div>
+      ${me.gps ? '<div id="loc" style="margin-top:12px"></div>' : ''}
+      <button class="btn primary" id="in">${on ? "I'm now here" : 'Check in'}</button></div>`;
+  } else {
+    main = `<div class="card"><div class="zone" style="font-size:20px">Scan the QR poster at your zone</div>
+      <p class="muted">Point your phone camera at the poster in your work area. This page opens and you tap Check in.
+      Shift starts at ${esc(BOOT.shiftStart)}.</p></div>`;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="muted">Hi</div><h1>${esc(me.name)}</h1>
+      <div class="muted">${esc(me.role)} · ${esc(me.id)}</div>
+      <div style="margin-top:12px">${status}</div>
+    </div>
+    ${flash ? `<div class="msg ${flash.ok ? 'ok' : 'err'}">${esc(flash.text)}</div>` : ''}
+    ${main}
+    ${on ? `<button class="btn secondary" id="out">Check out (end my shift)</button>` : ''}
+    <button class="link" id="lo">Not ${esc(String(me.name).split(' ')[0])}? Log out</button>`;
+  flash = null;
+
+  const bin = document.getElementById('in');
+  if (bin) bin.onclick = () => act('in', bin);
+  const bout = document.getElementById('out');
+  if (bout) bout.onclick = () => { if (confirm('Check out and end your shift?')) act('out', bout); };
+  document.getElementById('lo').onclick = () => logout();
+
+  if (bin && me.gps) {
+    const fresh = geo && Date.now() - geo.at < 120000;
+    if (geoState === 'idle' || (geoState === 'ok' && !fresh)) locate(); else showGeo();
+  }
+}
+
+function geoHelp(code) {
+  if (code === 1) return 'Location is blocked for this page. iPhone: Settings → Privacy & Security → Location Services → turn it ON, then Safari Websites → "While Using the App". Android: tap the lock icon next to the address → Permissions → Location → Allow. Then reload this page.';
+  if (code === 'unsupported') return 'This browser cannot share location. Open the link in Safari or Chrome.';
+  return 'Could not get your location. Make sure Location Services are on, step near a window or outside for a moment, then tap "Try again".';
+}
+
+function getPos(high, timeout) {
+  return new Promise((res, rej) => navigator.geolocation.getCurrentPosition(
+    p => res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() }),
+    e => rej(e),
+    { enableHighAccuracy: high, timeout: timeout, maximumAge: 30000 }));
+}
+
+function locate() {
+  if (geoPromise) return geoPromise;
+  if (!navigator.geolocation) { geoState = 'error'; geoErr = 'unsupported'; showGeo(); return Promise.resolve(null); }
+  geoState = 'busy'; geoErr = null; showGeo();
+  geoPromise = getPos(true, 12000)
+    .catch(e => (e && e.code === 1) ? Promise.reject(e) : getPos(false, 15000))
+    .then(p => { geo = p; geoState = 'ok'; return p; })
+    .catch(e => { geo = null; geoState = 'error'; geoErr = (e && e.code) || 2; return null; })
+    .finally(() => { geoPromise = null; showGeo(); });
+  return geoPromise;
+}
+
+function showGeo() {
+  const el = document.getElementById('loc');
+  if (!el) return;
+  if (geoState === 'busy') el.innerHTML = '<div class="muted">📍 Finding your location…</div>';
+  else if (geoState === 'ok') el.innerHTML = `<div class="muted">📍 Location found (±${Math.round(geo.acc)} m)</div>`;
+  else if (geoState === 'error') el.innerHTML = `<div class="msg err">📍 ${esc(geoHelp(geoErr))}</div><button class="btn secondary" id="retry">Try again</button>`;
+  else el.innerHTML = '';
+  const r = document.getElementById('retry');
+  if (r) r.onclick = () => locate();
+}
+
+async function act(kind, btn) {
+  btn.disabled = true;
+  let pos = null;
+  if (kind === 'in' && me.gps) {
+    btn.textContent = 'Getting location…';
+    pos = geo && Date.now() - geo.at < 120000 ? geo : await locate();
+    if (!pos) { flash = { ok: false, text: 'Check-in needs your location. ' + geoHelp(geoErr) }; return render(); }
+  }
+  btn.textContent = 'Saving…';
+  try {
+    me = await call('apiAction', token, zone ? zone.code : '', kind, pos ? { lat: pos.lat, lng: pos.lng, acc: pos.acc } : null);
+    flash = { ok: true, text: me.message };
+  } catch (e) {
+    const m = errText(e);
+    if (/SESSION/.test(m)) return logout('Please log in again.');
+    flash = { ok: false, text: m };
+  }
+  render();
+}
+
+start();
+</script>
+</body>
+</html>
