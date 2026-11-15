@@ -4,120 +4,210 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Hiring Dashboard</title>
+<title>ADFW Staffing Dashboard</title>
 <style>
   :root {
-    --bg: #f4f5f7; --card: #ffffff; --ink: #111827; --muted: #6b7280; --line: #e5e7eb; --soft: #f9fafb;
-    --green: #15803d; --greenbg: #dcfce7; --amber: #b45309; --amberbg: #fef3c7; --red: #b91c1c; --redbg: #fee2e2;
-    --blue: #1d4ed8; --bluebg: #dbeafe; --violet: #6d28d9; --violetbg: #ede9fe; --accent: #111827;
+    --bg: #eef1f5; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --soft: #f8fafc;
+    --navy: #1e2a44; --navy2: #2b3a5c; --onnavy: #e8edf6;
+    --green: #16a34a; --greenbg: #dcfce7; --amber: #d97706; --amberbg: #fef3c7; --red: #dc2626; --redbg: #fee2e2;
+    --blue: #2563eb; --bluebg: #dbeafe; --violet: #7c3aed; --violetbg: #ede9fe; --teal: #0d9488; --tealbg: #ccfbf1;
+    --track: #e5e7eb; --rowsel: #fff7e6;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #0b0f14; --card: #151b23; --ink: #e5e7eb; --muted: #9ca3af; --line: #273040; --soft: #10151c;
-      --green: #4ade80; --greenbg: #0f2e1c; --amber: #fbbf24; --amberbg: #332507; --red: #fca5a5; --redbg: #3b1212;
-      --blue: #93c5fd; --bluebg: #172554; --violet: #c4b5fd; --violetbg: #2e1065; --accent: #e5e7eb; }
+    :root { --bg: #0b1020; --card: #121a2c; --ink: #e5e9f2; --muted: #94a3b8; --line: #243049; --soft: #0f1626;
+      --navy: #182238; --navy2: #24324f; --onnavy: #e5e9f2;
+      --green: #4ade80; --greenbg: #0f2e1c; --amber: #fbbf24; --amberbg: #332507; --red: #f87171; --redbg: #3b1212;
+      --blue: #93c5fd; --bluebg: #172554; --violet: #c4b5fd; --violetbg: #2e1065; --teal: #5eead4; --tealbg: #0b2e2b;
+      --track: #243049; --rowsel: #2a2412; }
   }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 18px 16px 60px; }
-  .event { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
-  h1 { margin: 2px 0 0; font-size: 24px; }
-  header { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: flex-end; }
-  .muted { color: var(--muted); font-size: 13px; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; font-size: 14px; }
+  button { font: inherit; }
   a { color: inherit; }
-  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 16px; }
-  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
-  .kpi .n { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .app { max-width: 1440px; margin: 0 auto; padding: 14px 16px 60px; }
+
+  /* top bar */
+  .topbar { background: var(--navy); color: var(--onnavy); border-radius: 14px; padding: 14px 18px; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+  .topbar h1 { margin: 0; font-size: 20px; letter-spacing: .2px; }
+  .tabs { display: flex; gap: 6px; }
+  .tab { border: 0; border-radius: 8px; padding: 7px 12px; background: transparent; color: var(--onnavy); opacity: .8; cursor: pointer; }
+  .tab.on { background: #c9a227; color: #1e2a44; opacity: 1; font-weight: 700; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-left: auto; font-size: 12px; opacity: .9; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .meta { font-size: 12px; opacity: .8; }
+  .meta a { color: var(--onnavy); }
+
+  /* KPI tiles */
+  .kpis { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+  @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; border-top: 4px solid var(--line); cursor: pointer; text-align: left; color: var(--ink); }
+  .kpi .n { font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
   .kpi .l { font-size: 12px; color: var(--muted); }
-  .kpi.hired .n { color: var(--green); }
-  .bar { height: 8px; background: var(--soft); border-radius: 4px; overflow: hidden; margin-top: 8px; border: 1px solid var(--line); }
-  .bar i { display: block; height: 100%; background: var(--green); }
-  .tools { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 10px; align-items: center; }
-  .chip { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
-  .chip.on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
-  input.search { flex: 1; min-width: 170px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--card); color: var(--ink); }
-  .bulk { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
-  .bulk .grow { flex: 1; min-width: 200px; font-size: 14px; }
-  .list { display: grid; gap: 10px; }
-  .cand { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; border-left-width: 6px; }
-  .cand.g { border-left-color: var(--green); } .cand.y { border-left-color: var(--amber); } .cand.r { border-left-color: var(--red); }
-  .cand.b { border-left-color: var(--blue); } .cand.v { border-left-color: var(--violet); } .cand.n { border-left-color: var(--line); }
-  .top { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; }
-  .name { font-size: 17px; font-weight: 700; }
-  .score { font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--soft); border: 1px solid var(--line); white-space: nowrap; }
-  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+  .kpi.c-all { border-top-color: var(--muted); } .kpi.c-fit { border-top-color: var(--green); } .kpi.c-chk { border-top-color: var(--amber); }
+  .kpi.c-inv { border-top-color: var(--blue); } .kpi.c-bk { border-top-color: var(--teal); } .kpi.c-off { border-top-color: var(--violet); }
+  .kpi.c-hire { border-top-color: var(--green); background: linear-gradient(0deg, var(--card), var(--greenbg)); }
+  .kpi .bar { height: 6px; background: var(--track); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .kpi .bar i { display: block; height: 100%; background: var(--green); }
+
+  /* charts */
+  .charts { display: grid; grid-template-columns: 1.2fr 1.2fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+  @media (max-width: 1100px) { .charts { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .charts { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+  .card h3 { margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .hb { display: grid; grid-template-columns: 96px 1fr 30px; gap: 8px; align-items: center; margin: 6px 0; font-size: 12px; cursor: pointer; }
+  .hb .t { height: 10px; background: var(--track); border-radius: 5px; overflow: hidden; display: flex; }
+  .hb .t i { display: block; height: 100%; }
+  .hb b { text-align: right; font-variant-numeric: tabular-nums; }
+  .hb:hover .t { outline: 2px solid var(--line); }
+  .vb { display: flex; align-items: flex-end; gap: 10px; height: 110px; padding-top: 14px; }
+  .vb .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; cursor: pointer; }
+  .vb .col .v { font-size: 11px; color: var(--muted); }
+  .vb .col .b { width: 100%; max-width: 46px; border-radius: 6px 6px 0 0; min-height: 2px; }
+  .vb .col .x { font-size: 11px; color: var(--muted); }
+  .pct { display: grid; grid-template-columns: 1fr 90px 36px; gap: 8px; align-items: center; margin: 7px 0; font-size: 12px; }
+  .pct .t { height: 8px; background: var(--track); border-radius: 4px; overflow: hidden; }
+  .pct .t i { display: block; height: 100%; background: #b08d57; }
+  .pct b { text-align: right; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* layout: filters + content */
+  .main { display: grid; grid-template-columns: 260px 1fr; gap: 12px; margin-top: 12px; align-items: start; }
+  @media (max-width: 1000px) { .main { grid-template-columns: 1fr; } }
+  .side { position: sticky; top: 10px; max-height: calc(100vh - 20px); overflow: auto; }
+  @media (max-width: 1000px) { .side { position: static; max-height: none; } }
+  .fgroup { margin-bottom: 12px; }
+  .fgroup .ft { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--soft); color: var(--ink); border-radius: 999px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+  .chip span { color: var(--muted); margin-left: 3px; }
+  .chip.on { background: var(--navy); border-color: var(--navy); color: var(--onnavy); }
+  .chip.on span { color: var(--onnavy); opacity: .8; }
+  .sidehead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .sidehead b { font-size: 13px; }
+  .linkbtn { border: 0; background: none; color: var(--blue); cursor: pointer; padding: 0; font-size: 12px; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .search { flex: 1; min-width: 180px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); }
+  .count { font-size: 12px; color: var(--muted); }
+  .bulk { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--greenbg); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
+  .warn { background: var(--amberbg); color: var(--amber); border-radius: 10px; padding: 8px 12px; font-size: 12px; margin-top: 10px; }
+
+  /* table */
+  .tablewrap { overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: var(--card); max-height: 70vh; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1100px; font-size: 12.5px; }
+  thead th { position: sticky; top: 0; background: var(--navy); color: var(--onnavy); text-align: left; font-weight: 700; padding: 10px; white-space: nowrap; cursor: pointer; user-select: none; z-index: 1; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; }
+  thead th .arr { opacity: .7; margin-left: 4px; }
+  tbody td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover td { background: var(--soft); }
+  tbody tr.sel td { background: var(--rowsel); }
+  tbody tr td:first-child { border-left: 4px solid transparent; }
+  tbody tr.g td:first-child { border-left-color: var(--green); } tbody tr.y td:first-child { border-left-color: var(--amber); }
+  tbody tr.r td:first-child { border-left-color: var(--red); } tbody tr.b td:first-child { border-left-color: var(--blue); }
+  tbody tr.v td:first-child { border-left-color: var(--violet); } tbody tr.n td:first-child { border-left-color: var(--line); }
+  tfoot td { position: sticky; bottom: 0; background: var(--navy2); color: var(--onnavy); padding: 9px 10px; font-weight: 700; white-space: nowrap; font-size: 12px; }
+  .nm { font-weight: 700; }
+  .sub { color: var(--muted); font-size: 11.5px; }
+  .score { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .s-hi { color: var(--green); } .s-mid { color: var(--amber); } .s-lo { color: var(--red); }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
   .p-g { background: var(--greenbg); color: var(--green); } .p-y { background: var(--amberbg); color: var(--amber); }
   .p-r { background: var(--redbg); color: var(--red); } .p-b { background: var(--bluebg); color: var(--blue); }
   .p-v { background: var(--violetbg); color: var(--violet); } .p-n { background: var(--soft); color: var(--muted); border: 1px solid var(--line); }
-  .facts { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
-  .flags { font-size: 13px; color: var(--amber); margin-top: 4px; }
-  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; align-items: center; }
-  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 10px; padding: 9px 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .btn:disabled { opacity: .55; cursor: default; }
-  .btn.pri { background: #15803d; border-color: #15803d; color: #fff; }
-  .btn.blue { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
+  .p-t { background: var(--tealbg); color: var(--teal); }
+  .flag { color: var(--amber); font-size: 11.5px; }
+  .btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px; padding: 6px 10px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.pri { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .btn.blue { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .btn.vio { background: #7c3aed; border-color: #7c3aed; color: #fff; }
   .btn.danger { color: var(--red); }
-  select { padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 14px; }
-  details { margin-top: 10px; }
-  summary { cursor: pointer; font-size: 13px; color: var(--muted); }
-  .grid2 { display: grid; grid-template-columns: 140px 1fr; gap: 4px 12px; font-size: 13px; margin-top: 8px; }
-  .grid2 div:nth-child(odd) { color: var(--muted); }
-  textarea { width: 100%; min-height: 60px; margin-top: 8px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 14px; background: var(--card); color: var(--ink); }
-  .gate { max-width: 360px; margin: 80px auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+
+  /* drawer */
+  .drawer { position: fixed; top: 0; right: 0; height: 100%; width: min(440px, 100%); background: var(--card); border-left: 1px solid var(--line); box-shadow: -10px 0 30px rgba(0,0,0,.15); z-index: 30; overflow: auto; padding: 18px; transform: translateX(105%); transition: transform .2s ease; }
+  .drawer.open { transform: none; }
+  .drawer .x { float: right; }
+  .drawer h2 { margin: 0 0 2px; font-size: 20px; }
+  .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 13px; margin: 14px 0; }
+  .kv div:nth-child(odd) { color: var(--muted); }
+  .dacts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  select, textarea { padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; }
+  textarea { width: 100%; min-height: 80px; }
+
+  /* interviews tab */
+  .day { margin-bottom: 14px; }
+  .day h4 { margin: 0 0 8px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .slot { display: grid; grid-template-columns: 90px 1fr auto; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 6px; }
+  .slot.past { opacity: .6; }
+  .slot .tm { font-weight: 800; font-variant-numeric: tabular-nums; }
+  @media (max-width: 600px) { .slot { grid-template-columns: 1fr; } }
+
+  /* gate, modal, toast */
+  .gate { max-width: 380px; margin: 90px auto; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px; }
   .gate input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 16px; margin-top: 10px; background: var(--card); color: var(--ink); }
-  .err { background: var(--redbg); color: var(--red); padding: 10px 12px; border-radius: 10px; margin-top: 12px; font-size: 14px; }
-  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--accent); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); display: none; z-index: 10; }
-  .empty { text-align: center; color: var(--muted); padding: 30px 0; }
-  .warn { background: var(--amberbg); color: var(--amber); border-radius: 12px; padding: 10px 14px; font-size: 13px; margin-top: 12px; }
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 20; }
-  .modal .box { background: var(--card); color: var(--ink); border-radius: 16px; padding: 20px; max-width: 380px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
-  .modal .box p { margin: 0 0 16px; font-size: 16px; line-height: 1.4; }
+  .err { background: var(--redbg); color: var(--red); padding: 10px 12px; border-radius: 10px; margin-top: 12px; font-size: 13px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal .box { background: var(--card); color: var(--ink); border-radius: 16px; padding: 20px; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+  .modal .box p { margin: 0 0 16px; font-size: 15px; line-height: 1.45; }
   .modal .row { display: flex; gap: 10px; justify-content: flex-end; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--navy); color: var(--onnavy); padding: 12px 16px; border-radius: 12px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.25); display: none; z-index: 60; }
 </style>
 </head>
 <body>
-<div class="wrap" id="root"></div>
+<div class="app" id="root"></div>
+<div class="drawer" id="drawer"></div>
 <div class="toast" id="toast"></div>
 <script>
-// The Google Apps Script web app behind this page
+// Google Apps Script web app behind this page (reads/writes your ADFW Hiring sheet)
 const API = 'https://script.google.com/macros/s/AKfycbxBbDeQNsPQRHerWBSaQrDr7QA8hmIEns7xrOvIaFcmk7IOkk_IbLTGSFa1erwR-A4/exec';
 const store = {
-  get() { try { return localStorage.getItem('adminKey'); } catch (e) { return null; } },
-  set(v) { try { localStorage.setItem('adminKey', v); } catch (e) {} },
-  del() { try { localStorage.removeItem('adminKey'); } catch (e) {} },
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} },
 };
 const root = document.getElementById('root');
-let KEY = store.get(), data = null, filter = 'todo', q = '', busy = false;
+let KEY = store.get('adminKey'), data = null, busy = false;
+let tab = store.get('hTab') || 'dash', q = '', sortKey = 'score', sortDir = -1, selected = null;
+let F = {}; // active filters: group -> Set of values
 
-// colour group for each status: g green, y yellow, r red, b blue, v violet, n neutral
-const GROUP = { 'Shortlisted': 'g', 'Review': 'y', 'Auto-rejected': 'r', 'Rejected': 'r', 'Declined': 'r',
-  'Invited': 'b', 'Interviewed': 'b', 'Selected': 'v', 'Offer sent': 'v', 'Accepted': 'g', 'Duplicate': 'n', 'Withdrawn': 'n' };
-const LABEL = { 'Shortlisted': '🟢 Fit for interview', 'Review': '🟡 Check manually', 'Auto-rejected': '🔴 Not eligible',
-  'Invited': '✉️ Invited', 'Interviewed': '🗣 Interviewed', 'Selected': '⭐ Selected', 'Offer sent': '📄 Offer sent',
-  'Accepted': '✅ Hired', 'Declined': 'Declined offer', 'Rejected': 'Rejected', 'Duplicate': 'Duplicate', 'Withdrawn': 'Withdrawn' };
-const FILTERS = [
-  ['todo', 'To do', c => ['Shortlisted', 'Review', 'Interviewed', 'Selected'].includes(c.status)],
-  ['Shortlisted', '🟢 Fit', c => c.status === 'Shortlisted'],
-  ['Review', '🟡 Check', c => c.status === 'Review'],
-  ['Invited', '✉️ Invited', c => c.status === 'Invited' || c.status === 'Interviewed'],
-  ['Selected', '⭐ Selected', c => c.status === 'Selected' || c.status === 'Offer sent'],
-  ['Accepted', '✅ Hired', c => c.status === 'Accepted'],
-  ['out', '🔴 Not going ahead', c => ['Auto-rejected', 'Rejected', 'Declined', 'Duplicate', 'Withdrawn'].includes(c.status)],
-  ['all', 'All', () => true],
+// ---------- stage model ----------
+const STAGES = [
+  { key: 'fit', label: 'Fit for interview', s: ['Shortlisted'], g: 'g', color: 'var(--green)' },
+  { key: 'check', label: 'Check manually', s: ['Review'], g: 'y', color: 'var(--amber)' },
+  { key: 'invited', label: 'Invited', s: ['Invited'], g: 'b', color: 'var(--blue)' },
+  { key: 'interviewed', label: 'Interviewed', s: ['Interviewed'], g: 'b', color: '#60a5fa' },
+  { key: 'selected', label: 'Selected', s: ['Selected'], g: 'v', color: 'var(--violet)' },
+  { key: 'offer', label: 'Offer sent', s: ['Offer sent'], g: 'v', color: '#a78bfa' },
+  { key: 'hired', label: 'Hired', s: ['Accepted'], g: 'g', color: '#15803d' },
+  { key: 'out', label: 'Not going ahead', s: ['Auto-rejected', 'Rejected', 'Declined', 'Duplicate', 'Withdrawn'], g: 'r', color: 'var(--red)' },
 ];
+const stageOf = c => STAGES.find(st => st.s.includes(c.status)) || STAGES[7];
 
+// ---------- helpers ----------
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function errText(e) { return String((e && e.message) || e).replace(/^Error:\s*/, ''); }
+const list = s => String(s || '').split(',').map(x => x.trim()).filter(Boolean);
+const daysOf = c => list(c.days).length;
+const expKey = c => (/6\+/.test(c.experience) ? '6+ events' : /3/.test(c.experience) ? '3–5 events' : /1/.test(c.experience) ? '1–2 events' : 'None');
+const scoreBand = c => c.score >= 80 ? '80+' : c.score >= 60 ? '60–79' : c.score >= 40 ? '40–59' : 'Under 40';
+const visaOk = c => !/visa|permit/i.test(c.flags);
 async function call(fn, ...args) {
   let r;
   try {
-    r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ fn: fn, args: args }), redirect: 'follow' });
+    r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }), redirect: 'follow' });
   } catch (e) { throw new Error('No connection. Check your internet and try again.'); }
   const j = await r.json().catch(() => ({ ok: false, error: 'Server error. Try again.' }));
   if (!j.ok) throw new Error(j.error || 'Something went wrong.');
   return j.data;
 }
-// In-page "Are you sure?" box (browser pop-ups can be blocked)
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = 'none'; }, 4000);
+}
 function ask(msg, yes) {
   return new Promise(resolve => {
     const m = document.createElement('div');
@@ -131,196 +221,374 @@ function ask(msg, yes) {
     m.querySelector('[data-r="1"]').focus();
   });
 }
-let toastT;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.style.display = 'block';
-  clearTimeout(toastT); toastT = setTimeout(() => { t.style.display = 'none'; }, 4000);
+
+// ---------- filters ----------
+function groups() {
+  const cs = data.candidates;
+  const nat = {};
+  cs.forEach(c => { const n = (c.nationality || '—').trim(); nat[n] = (nat[n] || 0) + 1; });
+  const topNat = Object.keys(nat).sort((a, b) => nat[b] - nat[a]).slice(0, 10);
+  const langs = ['Arabic', 'English', 'Hindi / Urdu', 'French', 'Russian', 'Mandarin', 'Tagalog'];
+  return [
+    { id: 'stage', title: 'Stage', opts: STAGES.map(s => [s.key, s.label]), test: (c, v) => stageOf(c).key === v },
+    { id: 'role', title: 'Role wanted', opts: data.roles.map(r => [r, r]), test: (c, v) => list(c.roles).includes(v) },
+    { id: 'exp', title: 'Experience', opts: ['None', '1–2 events', '3–5 events', '6+ events'].map(x => [x, x]), test: (c, v) => expKey(c) === v },
+    { id: 'days', title: 'Days available', opts: [['all', 'All days'], ['some', 'Some days']], test: (c, v) => v === 'all' ? daysOf(c) >= data.eventDays.length : daysOf(c) < data.eventDays.length },
+    { id: 'lang', title: 'Speaks', opts: langs.map(x => [x, x]), test: (c, v) => list(c.languages).includes(v) },
+    { id: 'nat', title: 'Nationality', opts: topNat.map(x => [x, x]), test: (c, v) => (c.nationality || '—').trim() === v },
+    { id: 'score', title: 'Score', opts: ['80+', '60–79', '40–59', 'Under 40'].map(x => [x, x]), test: (c, v) => scoreBand(c) === v },
+    { id: 'intv', title: 'Interview', opts: [['booked', 'Booked'], ['none', 'Not booked']], test: (c, v) => v === 'booked' ? !!c.interview : !c.interview },
+    { id: 'visa', title: 'Visa', opts: [['ok', 'Work-ready'], ['check', 'Needs checking']], test: (c, v) => v === 'ok' ? visaOk(c) : !visaOk(c) },
+  ];
+}
+function passes(c, skip) {
+  for (const g of groups()) {
+    if (g.id === skip) continue;
+    const set = F[g.id];
+    if (set && set.size && ![...set].some(v => g.test(c, v))) return false;
+  }
+  if (q && ![c.name, c.email, c.id, c.nationality, c.roles, c.role].join(' ').toLowerCase().includes(q)) return false;
+  return true;
+}
+const filtered = () => data.candidates.filter(c => passes(c));
+function toggle(group, val, only) {
+  if (only) { F = {}; F[group] = new Set([val]); }
+  else {
+    const s = F[group] || (F[group] = new Set());
+    s.has(val) ? s.delete(val) : s.add(val);
+  }
+  render();
 }
 
+// ---------- shell ----------
 function gate(msg) {
   root.innerHTML = `<div class="gate">
-    <div class="event">Abu Dhabi Finance Week</div><h1>Hiring dashboard</h1>
-    <p class="muted">Enter the admin key to open the dashboard.</p>
+    <div class="sub">Abu Dhabi Finance Week</div><h2 style="margin:4px 0 0">Staffing dashboard</h2>
+    <p class="sub">Enter the admin key to open the dashboard.</p>
     <form id="g"><input id="k" type="password" placeholder="Admin key" autocomplete="current-password" required>
-    <button class="btn pri" style="width:100%;margin-top:10px">Open</button></form>
+    <button class="btn pri" style="width:100%;margin-top:10px;padding:10px">Open</button></form>
     ${msg ? `<div class="err">${esc(msg)}</div>` : ''}</div>`;
   document.getElementById('g').onsubmit = ev => { ev.preventDefault(); KEY = document.getElementById('k').value; load(true); };
 }
 
-function shell() {
-  root.innerHTML = `
-    <header>
-      <div><div class="event">Abu Dhabi Finance Week</div><h1>Hiring dashboard</h1></div>
-      <div class="muted">Updated <span id="upd"></span> · <a href="#" id="refresh">Refresh</a> · <a href="#" id="lock">Lock</a></div>
-    </header>
-    <div class="kpis" id="kpis"></div>
-    <div id="notes"></div>
-    <div id="bulk"></div>
-    <div class="tools" id="chips"></div>
-    <div class="tools"><input class="search" id="q" placeholder="Search name, email, nationality…"></div>
-    <div class="list" id="list"></div>`;
-  document.getElementById('q').oninput = e => { q = e.target.value.toLowerCase(); renderList(); };
-  document.getElementById('refresh').onclick = e => { e.preventDefault(); load(); };
-  document.getElementById('lock').onclick = e => { e.preventDefault(); store.del(); KEY = null; data = null; gate(); };
-}
-
 function render() {
-  if (!document.getElementById('kpis')) shell();
-  const k = data.kpis;
-  document.getElementById('upd').textContent = data.updated;
-  const pct = Math.min(100, Math.round((k.Accepted / Math.max(1, k.target)) * 100));
-  document.getElementById('kpis').innerHTML = `
-    <div class="kpi"><div class="n">${k.applied}</div><div class="l">Applied</div></div>
-    <div class="kpi"><div class="n">${k.Shortlisted}</div><div class="l">🟢 Fit for interview</div></div>
-    <div class="kpi"><div class="n">${k.Review}</div><div class="l">🟡 Check manually</div></div>
-    <div class="kpi"><div class="n">${k.Invited + k.Interviewed}</div><div class="l">✉️ Invited</div></div>
-    <div class="kpi"><div class="n">${k.Selected + k['Offer sent']}</div><div class="l">⭐ Selected / offer sent</div></div>
-    <div class="kpi hired"><div class="n">${k.Accepted} / ${k.target}</div><div class="l">✅ Hired</div><div class="bar"><i style="width:${pct}%"></i></div></div>`;
+  if (!data) return;
+  const k = data.kpis, cs = data.candidates;
+  const ap = data.appointments || { ok: false, items: [] };
+  const upcoming = ap.items.filter(a => !a.past).length;
+  const hired = k.Accepted, pct = Math.round(hired / Math.max(1, k.target) * 100);
+  const scrollY = window.scrollY;
+  root.innerHTML = `
+    <div class="topbar">
+      <h1>ADFW Staffing — 2026</h1>
+      <div class="tabs">
+        <button class="tab ${tab === 'dash' ? 'on' : ''}" data-tab="dash">Dashboard</button>
+        <button class="tab ${tab === 'intv' ? 'on' : ''}" data-tab="intv">Interviews${upcoming ? ` (${upcoming})` : ''}</button>
+      </div>
+      <div class="legend"><span><i style="background:var(--green)"></i>Fit / Hired</span><span><i style="background:var(--amber)"></i>Check</span>
+        <span><i style="background:var(--blue)"></i>Interviewing</span><span><i style="background:var(--violet)"></i>Offer stage</span><span><i style="background:var(--red)"></i>Not going ahead</span></div>
+      <div class="meta">Updated ${esc(data.updated)} · <a href="#" id="refresh">Refresh</a> · <a href="#" id="lock">Lock</a></div>
+    </div>
 
-  document.getElementById('notes').innerHTML =
-    (data.bookingLinkSet ? '' : '<div class="warn">Heads-up: the "Book my interview" link in invite emails is still a placeholder. Add your booking page link before inviting real candidates.</div>') +
-    (data.quota < 10 ? `<div class="warn">Only ${data.quota} emails left today (Gmail daily limit). The rest can go out tomorrow.</div>` : '');
+    <div class="kpis">
+      ${kpi('c-all', k.applied, 'Applied', 'all')}
+      ${kpi('c-fit', k.Shortlisted, 'Fit for interview', 'fit')}
+      ${kpi('c-chk', k.Review, 'Check manually', 'check')}
+      ${kpi('c-inv', k.Invited + k.Interviewed, 'Invited / interviewed', 'invited')}
+      ${kpi('c-bk', upcoming, 'Interviews booked', 'booked')}
+      ${kpi('c-off', k.Selected + k['Offer sent'], 'Selected / offer sent', 'selected')}
+      <button class="kpi c-hire" data-k="hired"><div class="n">${hired} / ${k.target}</div><div class="l">Hired · ${pct}%</div><div class="bar"><i style="width:${Math.min(100, pct)}%"></i></div></button>
+    </div>
+    ${data.bookingLinkSet ? '' : '<div class="warn">The "Book my interview" link in invite emails is still a placeholder.</div>'}
+    ${data.quota < 10 ? `<div class="warn">Only ${data.quota} emails left today (Gmail daily limit).</div>` : ''}
+    ${ap.ok ? '' : '<div class="warn">Interview bookings can\'t be read yet: open the Apps Script project and allow Google Calendar access.</div>'}
 
-  const toInvite = data.candidates.filter(c => c.status === 'Shortlisted' && !c.inviteSent).length;
-  document.getElementById('bulk').innerHTML = toInvite ? `<div class="bulk">
-      <div class="grow"><b>${toInvite}</b> fit candidate${toInvite > 1 ? 's are' : ' is'} waiting for an interview invite.</div>
-      <button class="btn pri" id="inviteAll">✉️ Invite all ${toInvite}</button></div>` : '';
-  const ia = document.getElementById('inviteAll');
-  if (ia) ia.onclick = async () => {
-    if (!(await ask(`Send the interview invite email to ${toInvite} candidate(s)?`))) return;
-    ia.disabled = true; ia.textContent = 'Sending…';
-    try {
-      const r = await call('hiringAction', KEY, '', 'inviteAll', {});
-      toast(`Sent ${r.sent} invite(s).` + (r.left ? ` ${r.left} will need to go tomorrow (daily limit).` : '') + (r.failed.length ? ` Failed: ${r.failed.join(', ')}` : ''));
-      await load();
-    } catch (e) { toast(errText(e)); ia.disabled = false; ia.textContent = `✉️ Invite all ${toInvite}`; }
-  };
+    ${tab === 'dash' ? dashView() : interviewsView()}`;
+  bindShell();
+  window.scrollTo(0, scrollY);
+}
+function kpi(cls, n, label, key) { return `<button class="kpi ${cls}" data-k="${key}"><div class="n">${n}</div><div class="l">${esc(label)}</div></button>`; }
 
-  document.getElementById('chips').innerHTML = FILTERS.map(([id, label, fn]) =>
-    `<button class="chip ${filter === id ? 'on' : ''}" data-f="${id}">${esc(label)} (${data.candidates.filter(fn).length})</button>`).join('');
-  document.querySelectorAll('#chips .chip').forEach(b => b.onclick = () => { filter = b.dataset.f; render(); });
-  renderList();
+function dashView() {
+  const cs = data.candidates;
+  // pipeline
+  const maxStage = Math.max(1, ...STAGES.map(s => cs.filter(c => stageOf(c).key === s.key).length));
+  const pipeline = STAGES.map(s => {
+    const n = cs.filter(c => stageOf(c).key === s.key).length;
+    return `<div class="hb" data-f="stage" data-v="${s.key}"><span>${esc(s.label)}</span><span class="t"><i style="width:${n / maxStage * 100}%;background:${s.color}"></i></span><b>${n}</b></div>`;
+  }).join('');
+  // roles: wanted vs hired
+  const maxRole = Math.max(1, ...data.roles.map(r => cs.filter(c => list(c.roles).includes(r)).length));
+  const roles = data.roles.map(r => {
+    const want = cs.filter(c => list(c.roles).includes(r)).length;
+    const hired = cs.filter(c => c.status === 'Accepted' && c.role === r).length;
+    return `<div class="hb" data-f="role" data-v="${esc(r)}"><span title="${esc(r)}">${esc(r.split(' / ')[0])}</span><span class="t"><i style="width:${hired / maxRole * 100}%;background:#15803d"></i><i style="width:${Math.max(0, want - hired) / maxRole * 100}%;background:#93c5fd"></i></span><b>${hired}/${want}</b></div>`;
+  }).join('');
+  // score spread
+  const bands = ['Under 40', '40–59', '60–79', '80+'], bcol = ['var(--red)', 'var(--amber)', '#84cc16', 'var(--green)'];
+  const bn = bands.map(b => cs.filter(c => scoreBand(c) === b).length), maxB = Math.max(1, ...bn);
+  const spread = bands.map((b, i) => `<div class="col" data-f="score" data-v="${b}"><span class="v">${bn[i]}</span><span class="b" style="height:${bn[i] / maxB * 80}%;background:${bcol[i]}"></span><span class="x">${b}</span></div>`).join('');
+  // coverage
+  const n = Math.max(1, cs.length);
+  const cov = [
+    ['Speak Arabic', cs.filter(c => list(c.languages).includes('Arabic')).length],
+    ['All event days', cs.filter(c => daysOf(c) >= data.eventDays.length).length],
+    ['3+ events experience', cs.filter(c => /3|6\+/.test(c.experience)).length],
+    ['Can attend training', cs.filter(c => c.training === 'Yes').length],
+    ['Work-ready visa', cs.filter(visaOk).length],
+  ].map(([l, v]) => `<div class="pct"><span>${esc(l)}</span><span class="t"><i style="width:${v / n * 100}%"></i></span><b>${Math.round(v / n * 100)}%</b></div>`).join('');
+
+  const rows = filtered();
+  return `
+    <div class="charts">
+      <div class="card"><h3>Hiring pipeline</h3>${pipeline}</div>
+      <div class="card"><h3>Roles — hired / applied</h3>${roles}</div>
+      <div class="card"><h3>Score spread</h3><div class="vb">${spread}</div></div>
+      <div class="card"><h3>Applicants who…</h3>${cov}</div>
+    </div>
+    <div class="main">
+      <aside class="card side">${sideFilters()}</aside>
+      <section>${tableView(rows)}</section>
+    </div>`;
 }
 
-function facts(c) {
-  const days = c.days ? c.days.split(',').filter(Boolean).length : 0;
-  return [c.experience && `Experience: ${c.experience}`, c.english && `English ${c.english}/5`,
-    `${days}/4 days`, c.languages, c.nationality, c.age && `Age ${c.age}`].filter(Boolean).map(esc).join(' · ');
+function sideFilters() {
+  const active = Object.values(F).reduce((a, s) => a + s.size, 0);
+  return `<div class="sidehead"><b>Filters</b>${active ? `<button class="linkbtn" id="reset">Reset (${active})</button>` : ''}</div>` +
+    groups().map(g => {
+      const base = data.candidates.filter(c => passes(c, g.id));
+      const chips = g.opts.map(([v, label]) => {
+        const cnt = base.filter(c => g.test(c, v)).length;
+        const on = F[g.id] && F[g.id].has(v);
+        return `<button class="chip ${on ? 'on' : ''}" data-f="${g.id}" data-v="${esc(v)}">${esc(label)}<span>${cnt}</span></button>`;
+      }).join('');
+      return `<div class="fgroup"><div class="ft">${esc(g.title)}</div><div class="chips">${chips}</div></div>`;
+    }).join('');
 }
 
-function actions(c) {
-  const roleSel = `<select data-role="${esc(c.id)}"><option value="">Choose role…</option>${data.roles.map(r =>
-    `<option ${c.role === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>`;
-  const wa = c.wa ? `<a class="btn" href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">💬 WhatsApp</a>` : '';
+function nextAction(c) {
   switch (c.status) {
-    case 'Shortlisted': case 'Review':
-      return `<button class="btn pri" data-a="invite">✉️ Invite to interview</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
-    case 'Invited':
-      return `<button class="btn" data-a="interviewed">🗣 Mark interviewed</button><button class="btn blue" data-a="select">⭐ Select</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
-    case 'Interviewed':
-      return `${roleSel}<button class="btn blue" data-a="select">⭐ Select</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
-    case 'Selected':
-      return `${roleSel}<button class="btn pri" data-a="offer">📄 Send offer</button>${wa}<button class="btn danger" data-a="reject">Reject</button>`;
-    case 'Offer sent':
-      return `<span class="muted">Waiting for their reply (sent ${esc(c.offerSent)})</span>${wa}`;
-    case 'Accepted':
-      return `<span class="pill p-g">Hired as ${esc(c.role || '—')}</span>${wa}`;
-    case 'Auto-rejected':
-      return `<button class="btn" data-a="review">Move to "Check manually"</button>`;
-    default:
-      return wa;
+    case 'Shortlisted': case 'Review': return `<button class="btn pri" data-act="invite" data-id="${esc(c.id)}">✉️ Invite</button>`;
+    case 'Invited': return `<button class="btn" data-act="interviewed" data-id="${esc(c.id)}">🗣 Interviewed</button>`;
+    case 'Interviewed': return `<button class="btn blue" data-act="select" data-id="${esc(c.id)}">⭐ Select</button>`;
+    case 'Selected': return `<button class="btn vio" data-act="offer" data-id="${esc(c.id)}">📄 Send offer</button>`;
+    case 'Offer sent': return '<span class="sub">Waiting reply</span>';
+    case 'Accepted': return '<span class="pill p-g">Hired</span>';
+    case 'Auto-rejected': return `<button class="btn" data-act="review" data-id="${esc(c.id)}">Review</button>`;
+    default: return '';
   }
 }
 
-function renderList() {
-  if (!data) return;
-  const fn = (FILTERS.find(f => f[0] === filter) || FILTERS[0])[2];
-  const rows = data.candidates.filter(fn).filter(c => !q ||
-    [c.name, c.email, c.nationality, c.id, c.roles].join(' ').toLowerCase().includes(q))
-    .sort((a, b) => b.score - a.score);
-  const list = document.getElementById('list');
-  if (!rows.length) { list.innerHTML = '<div class="empty">Nobody here.</div>'; return; }
-  list.innerHTML = rows.map(c => {
-    const g = GROUP[c.status] || 'n';
-    return `<div class="cand ${g}" data-id="${esc(c.id)}">
-      <div class="top">
-        <div><div class="name">${esc(c.name)}</div><div class="muted">${esc(c.id)} · applied ${esc(c.submitted)}</div></div>
-        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="score">Score ${c.score}</span><span class="pill p-${g}">${esc(LABEL[c.status] || c.status)}</span></div>
-      </div>
-      <div class="facts">${facts(c)}</div>
-      <div class="facts">Wants: ${esc(c.roles || '—')}</div>
-      ${c.flags ? `<div class="flags">⚠ ${esc(c.flags)}</div>` : ''}
-      <div class="acts">${actions(c)}</div>
-      <details><summary>Details & notes</summary>
-        <div class="grid2">
-          <div>Email</div><div>${esc(c.email)}</div>
-          <div>Phone</div><div>${esc(c.phone)}</div>
-          <div>Lives in UAE</div><div>${esc(c.inUae)}</div>
-          <div>Visa</div><div>${esc(c.visa)}</div>
-          <div>Days available</div><div>${esc(c.days)}</div>
-          <div>Training</div><div>${esc(c.training)}</div>
-          <div>CV / LinkedIn</div><div>${c.cv ? `<a href="${esc(/^https?:/i.test(c.cv) ? c.cv : 'https://' + c.cv)}" target="_blank" rel="noopener">${esc(c.cv)}</a>` : '—'}</div>
-          <div>About them</div><div>${esc(c.about || '—')}</div>
-          <div>Invite sent</div><div>${esc(c.inviteSent || '—')}</div>
-          <div>Offer sent</div><div>${esc(c.offerSent || '—')}</div>
-        </div>
-        <textarea data-notes="${esc(c.id)}" placeholder="Interview notes…">${esc(c.notes)}</textarea>
-        <button class="btn" data-a="notes">Save notes</button>
-      </details>
-    </div>`;
+const COLS = [
+  ['id', 'ID'], ['name', 'Name'], ['score', 'Score'], ['status', 'Stage'], ['roles', 'Wants'], ['role', 'Assigned'],
+  ['experience', 'Experience'], ['english', 'English'], ['days', 'Days'], ['languages', 'Languages'],
+  ['nationality', 'Nationality'], ['interview', 'Interview'], ['flags', 'Flags'], ['', 'Action'],
+];
+function sortVal(c, k) {
+  if (k === 'score') return c.score;
+  if (k === 'english') return Number(c.english) || 0;
+  if (k === 'days') return daysOf(c);
+  if (k === 'status') return STAGES.indexOf(stageOf(c));
+  if (k === 'interview') return c.interviewSort || '9999';
+  return String(c[k] || '').toLowerCase();
+}
+function tableView(rows) {
+  rows = rows.slice().sort((a, b) => { const x = sortVal(a, sortKey), y = sortVal(b, sortKey); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+  const toInvite = data.candidates.filter(c => c.status === 'Shortlisted' && !c.inviteSent).length;
+  const avg = rows.length ? Math.round(rows.reduce((a, c) => a + c.score, 0) / rows.length) : 0;
+  const head = COLS.map(([k, l]) => `<th data-sort="${k}">${esc(l)}${k && k === sortKey ? `<span class="arr">${sortDir > 0 ? '▲' : '▼'}</span>` : ''}</th>`).join('');
+  const body = rows.map(c => {
+    const st = stageOf(c), sc = c.score >= 80 ? 's-hi' : c.score >= 60 ? 's-mid' : 's-lo';
+    return `<tr class="${st.g} ${selected === c.id ? 'sel' : ''}" data-row="${esc(c.id)}">
+      <td class="sub">${esc(c.id)}</td>
+      <td><div class="nm">${esc(c.name)}</div><div class="sub">${esc(c.email)}</div></td>
+      <td class="score ${sc}">${c.score}</td>
+      <td><span class="pill p-${st.g}">${esc(st.label)}</span></td>
+      <td>${esc(list(c.roles).map(r => r.split(' / ')[0]).join(', ') || '—')}</td>
+      <td>${esc(c.role || '—')}</td>
+      <td>${esc(c.experience || '—')}</td>
+      <td>${esc(c.english ? c.english + '/5' : '—')}</td>
+      <td>${daysOf(c)}/${data.eventDays.length}</td>
+      <td>${esc(c.languages || '—')}</td>
+      <td>${esc(c.nationality || '—')}</td>
+      <td>${c.interview ? `<span class="pill ${c.interviewPast ? 'p-n' : 'p-t'}">${esc(c.interview)}</span>` : '<span class="sub">—</span>'}</td>
+      <td>${c.flags ? `<span class="flag">⚠ ${esc(c.flags)}</span>` : ''}</td>
+      <td>${nextAction(c)}</td>
+    </tr>`;
   }).join('');
-
-  list.querySelectorAll('.cand').forEach(card => {
-    const id = card.dataset.id;
-    const c = data.candidates.find(x => x.id === id);
-    card.querySelectorAll('[data-a]').forEach(btn => btn.onclick = () => act(c, btn.dataset.a, btn, card));
-  });
+  return `
+    ${toInvite ? `<div class="bulk"><span><b>${toInvite}</b> fit candidate${toInvite > 1 ? 's' : ''} waiting for an interview invite.</span><button class="btn pri" id="inviteAll">✉️ Invite all ${toInvite}</button></div>` : ''}
+    <div class="toolbar"><input class="search" id="q" placeholder="Search name, email, ID, nationality, role…" value="${esc(q)}"><span class="count">${rows.length} of ${data.candidates.length} shown</span></div>
+    <div class="tablewrap">
+      <table><thead><tr>${head}</tr></thead>
+      <tbody>${body || `<tr><td colspan="${COLS.length}" class="empty">Nobody matches these filters.</td></tr>`}</tbody>
+      <tfoot><tr><td colspan="2">Total · ${rows.length} candidates</td><td>avg ${avg}</td>
+        <td>${rows.filter(c => c.status === 'Accepted').length} hired</td><td colspan="7"></td>
+        <td>${rows.filter(c => c.interview && !c.interviewPast).length} booked</td><td colspan="2"></td></tr></tfoot>
+      </table>
+    </div>`;
 }
 
-async function act(c, a, btn, card) {
-  const sel = card.querySelector('select[data-role]');
-  const role = sel ? sel.value : undefined;
+function interviewsView() {
+  const ap = data.appointments || { ok: false, items: [] };
+  if (!ap.ok) return `<div class="card" style="margin-top:12px"><b>Interview bookings aren't connected yet.</b><p class="sub">Google needs your permission to read your calendar. ${esc(ap.error || '')}</p></div>`;
+  const items = ap.items;
+  const invitedNoBooking = data.candidates.filter(c => c.status === 'Invited' && !c.interview);
+  const days = {};
+  items.forEach(a => { (days[a.date] = days[a.date] || { label: a.day, items: [] }).items.push(a); });
+  const dayHtml = Object.keys(days).sort().map(d => `<div class="day"><h4>${esc(days[d].label)}</h4>${days[d].items.map(a => {
+    const c = data.candidates.find(x => x.id === a.id);
+    const st = c ? stageOf(c) : null;
+    return `<div class="slot ${a.past ? 'past' : ''}">
+      <div class="tm">${esc(a.time)}–${esc(a.end)}</div>
+      <div><div class="nm">${esc(a.name)}</div><div class="sub">${esc(a.email)}${c ? ` · ${esc(c.id)} · score ${c.score}` : ' · not matched to an applicant'}</div></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">${st ? `<span class="pill p-${st.g}">${esc(st.label)}</span>` : ''}${c ? nextAction(c) + `<button class="btn" data-open="${esc(c.id)}">Open</button>` : ''}</div>
+    </div>`;
+  }).join('')}</div>`).join('');
+  return `<div class="main" style="grid-template-columns:1fr">
+    <section>
+      <div class="card" style="margin-bottom:12px"><h3>Interview bookings</h3>
+        <div class="sub">From your Google Calendar booking page "ADFW Event Staff Interview". Times are Dubai time.</div></div>
+      ${dayHtml || '<div class="empty">No interviews booked yet. When candidates book a slot from their invite email, it shows up here.</div>'}
+      ${invitedNoBooking.length ? `<div class="card" style="margin-top:12px"><h3>Invited but not booked yet (${invitedNoBooking.length})</h3>
+        ${invitedNoBooking.map(c => `<div class="slot"><div class="sub">invited ${esc(c.inviteSent)}</div><div><div class="nm">${esc(c.name)}</div><div class="sub">${esc(c.email)}</div></div>
+          <div style="display:flex;gap:6px">${c.wa ? `<a class="btn" href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">💬 Remind</a>` : ''}<button class="btn" data-open="${esc(c.id)}">Open</button></div></div>`).join('')}</div>` : ''}
+    </section></div>`;
+}
+
+// ---------- drawer ----------
+function openDrawer(id) {
+  selected = id;
+  const c = data.candidates.find(x => x.id === id);
+  const d = document.getElementById('drawer');
+  if (!c) { d.classList.remove('open'); return; }
+  const st = stageOf(c);
+  const roleSel = `<select id="dRole"><option value="">Assign role…</option>${data.roles.map(r => `<option ${c.role === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>`;
+  const can = {
+    invite: ['Shortlisted', 'Review'].includes(c.status), interviewed: c.status === 'Invited',
+    select: ['Invited', 'Interviewed'].includes(c.status), offer: c.status === 'Selected',
+    reject: !['Rejected', 'Auto-rejected', 'Accepted', 'Declined'].includes(c.status),
+  };
+  d.innerHTML = `<button class="btn x" id="dClose">✕</button>
+    <div class="sub">${esc(c.id)} · applied ${esc(c.submitted)}</div>
+    <h2>${esc(c.name)}</h2>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:6px"><span class="pill p-${st.g}">${esc(st.label)}</span><span class="score ${c.score >= 80 ? 's-hi' : c.score >= 60 ? 's-mid' : 's-lo'}">Score ${c.score}</span>
+      ${c.interview ? `<span class="pill p-t">Interview ${esc(c.interview)}</span>` : ''}</div>
+    ${c.flags ? `<div class="flag" style="margin-top:8px">⚠ ${esc(c.flags)}</div>` : ''}
+    <div class="dacts">
+      ${can.invite ? '<button class="btn pri" data-dact="invite">✉️ Invite to interview</button>' : ''}
+      ${can.interviewed ? '<button class="btn" data-dact="interviewed">🗣 Mark interviewed</button>' : ''}
+      ${can.select ? '<button class="btn blue" data-dact="select">⭐ Select</button>' : ''}
+      ${can.offer ? '<button class="btn vio" data-dact="offer">📄 Send offer</button>' : ''}
+      ${c.wa ? `<a class="btn" href="https://wa.me/${esc(c.wa)}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}
+      ${c.email ? `<a class="btn" href="mailto:${esc(c.email)}">📧 Email</a>` : ''}
+      ${can.reject ? '<button class="btn danger" data-dact="reject">Reject</button>' : ''}
+    </div>
+    <div>${roleSel}</div>
+    <div class="kv">
+      <div>Email</div><div>${esc(c.email)}</div><div>Phone</div><div>${esc(c.phone)}</div>
+      <div>Age</div><div>${esc(c.age || '—')}</div><div>Nationality</div><div>${esc(c.nationality || '—')}</div>
+      <div>Lives in UAE</div><div>${esc(c.inUae)}</div><div>Visa</div><div>${esc(c.visa)}</div>
+      <div>Wants</div><div>${esc(c.roles)}</div><div>Experience</div><div>${esc(c.experience)}</div>
+      <div>English</div><div>${esc(c.english)}/5</div><div>Languages</div><div>${esc(c.languages)}</div>
+      <div>Days</div><div>${esc(c.days)}</div><div>Training</div><div>${esc(c.training)}</div>
+      <div>CV / LinkedIn</div><div>${c.cv ? `<a href="${esc(/^https?:/i.test(c.cv) ? c.cv : 'https://' + c.cv)}" target="_blank" rel="noopener">${esc(c.cv)}</a>` : '—'}</div>
+      <div>About</div><div>${esc(c.about || '—')}</div>
+      <div>Invite sent</div><div>${esc(c.inviteSent || '—')}</div><div>Offer sent</div><div>${esc(c.offerSent || '—')}</div>
+      <div>Offer reply</div><div>${esc(c.response || '—')}</div>
+    </div>
+    <div class="ft sub" style="margin-bottom:6px">Interview notes</div>
+    <textarea id="dNotes" placeholder="Notes from the interview…">${esc(c.notes)}</textarea>
+    <div style="margin-top:8px"><button class="btn" data-dact="save">Save notes & role</button></div>`;
+  d.classList.add('open');
+  document.getElementById('dClose').onclick = closeDrawer;
+  d.querySelectorAll('[data-dact]').forEach(b => b.onclick = () => act(c, b.dataset.dact, b, true));
+  document.querySelectorAll('tbody tr').forEach(tr => tr.classList.toggle('sel', tr.dataset.row === id));
+}
+function closeDrawer() { selected = null; document.getElementById('drawer').classList.remove('open'); document.querySelectorAll('tbody tr.sel').forEach(tr => tr.classList.remove('sel')); }
+
+// ---------- actions ----------
+async function act(c, a, btn, fromDrawer) {
+  const roleEl = fromDrawer ? document.getElementById('dRole') : null;
+  const role = roleEl ? roleEl.value : undefined;
   let action, opts = {}, question = null, yesLabel;
   if (a === 'invite') { action = 'invite'; question = `Send the interview invite email to ${c.name}?`; }
   else if (a === 'interviewed') { action = 'status'; opts.status = 'Interviewed'; }
-  else if (a === 'select') { action = 'status'; opts.status = 'Selected'; if (role !== undefined) opts.role = role; }
+  else if (a === 'select') { action = 'status'; opts.status = 'Selected'; if (role) opts.role = role; }
   else if (a === 'offer') {
-    if (!role && !c.role) { toast('Choose a role first.'); return; }
+    const r = role || c.role;
+    if (!r) { openDrawer(c.id); toast('Choose a role in the panel, then send the offer.'); return; }
     action = 'offer'; if (role) opts.role = role;
-    question = `Send the job offer to ${c.name} as ${role || c.role}?`;
+    question = `Send the job offer to ${c.name} as ${r}?`;
   }
-  else if (a === 'reject') { action = 'reject'; question = `Reject ${c.name}? They will get a polite "not this time" email.`; yesLabel = 'Yes, reject'; }
+  else if (a === 'reject') { action = 'reject'; question = `Reject ${c.name}? They get a polite "not this time" email.`; yesLabel = 'Yes, reject'; }
   else if (a === 'review') { action = 'status'; opts.status = 'Review'; }
-  else if (a === 'notes') { action = 'save'; opts.notes = card.querySelector('textarea[data-notes]').value; }
+  else if (a === 'save') { action = 'save'; opts.notes = document.getElementById('dNotes').value; if (role !== undefined) opts.role = role; }
   if (question && !(await ask(question, yesLabel))) return;
   const old = btn.textContent; btn.disabled = true; btn.textContent = 'Saving…';
   try {
-    const updated = await call('hiringAction', KEY, c.id, action, opts);
+    const u = await call('hiringAction', KEY, c.id, action, opts);
     const i = data.candidates.findIndex(x => x.id === c.id);
-    data.candidates[i] = updated;
-    toast({ invite: `Invite sent to ${c.name} ✓`, offer: `Offer sent to ${c.name} ✓`, reject: `${c.name} rejected`, save: 'Notes saved ✓' }[action] || 'Updated ✓');
-    load();
+    data.candidates[i] = Object.assign(u, { interview: c.interview, interviewSort: c.interviewSort, interviewPast: c.interviewPast });
+    toast({ invite: `Invite sent to ${c.name} ✓`, offer: `Offer sent to ${c.name} ✓`, reject: `${c.name} rejected`, save: 'Saved ✓' }[action] || 'Updated ✓');
+    await load();
+    if (fromDrawer) openDrawer(c.id);
   } catch (e) { toast(errText(e)); btn.disabled = false; btn.textContent = old; }
+}
+
+function bindShell() {
+  const $ = id => document.getElementById(id);
+  root.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; store.set('hTab', tab); render(); });
+  $('refresh').onclick = e => { e.preventDefault(); load(); };
+  $('lock').onclick = e => { e.preventDefault(); store.del('adminKey'); KEY = null; data = null; closeDrawer(); gate(); };
+  root.querySelectorAll('.kpi[data-k]').forEach(b => b.onclick = () => {
+    const k = b.dataset.k; tab = 'dash';
+    if (k === 'all') F = {};
+    else if (k === 'booked') { F = {}; F.intv = new Set(['booked']); }
+    else toggle('stage', k, true);
+    render();
+  });
+  root.querySelectorAll('[data-f]').forEach(el => el.onclick = () => toggle(el.dataset.f, el.dataset.v, el.classList.contains('hb') || el.classList.contains('col')));
+  if ($('reset')) $('reset').onclick = () => { F = {}; render(); };
+  if ($('q')) $('q').oninput = e => { q = e.target.value.toLowerCase(); const pos = e.target.selectionStart; render(); const n = $('q'); n.focus(); n.setSelectionRange(pos, pos); };
+  root.querySelectorAll('th[data-sort]').forEach(th => th.onclick = () => {
+    const k = th.dataset.sort; if (!k) return;
+    if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = (k === 'score' || k === 'english' || k === 'days') ? -1 : 1; }
+    render();
+  });
+  root.querySelectorAll('tr[data-row]').forEach(tr => tr.onclick = e => { if (e.target.closest('button,a')) return; openDrawer(tr.dataset.row); });
+  root.querySelectorAll('[data-act]').forEach(b => b.onclick = e => { e.stopPropagation(); const c = data.candidates.find(x => x.id === b.dataset.id); act(c, b.dataset.act, b, false); });
+  root.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openDrawer(b.dataset.open));
+  if ($('inviteAll')) $('inviteAll').onclick = async () => {
+    const n = data.candidates.filter(c => c.status === 'Shortlisted' && !c.inviteSent).length;
+    if (!(await ask(`Send the interview invite email to ${n} candidate(s)?`))) return;
+    const b = $('inviteAll'); b.disabled = true; b.textContent = 'Sending…';
+    try {
+      const r = await call('hiringAction', KEY, '', 'inviteAll', {});
+      toast(`Sent ${r.sent} invite(s).` + (r.left ? ` ${r.left} left for tomorrow (daily limit).` : '') + (r.failed.length ? ` Failed: ${r.failed.join(', ')}` : ''));
+      await load();
+    } catch (e) { toast(errText(e)); b.disabled = false; }
+  };
 }
 
 async function load(first) {
   if (busy) return; busy = true;
   try {
     data = await call('hiring', KEY);
-    if (first) store.set(KEY);
+    if (first) store.set('adminKey', KEY);
     render();
+    if (selected) openDrawer(selected);
   } catch (e) {
     const m = errText(e);
-    if (/admin key/i.test(m)) { store.del(); KEY = null; gate(m); }
+    if (/admin key/i.test(m)) { store.del('adminKey'); KEY = null; gate(m); }
     else if (first || !data) gate(m);
     else toast(m);
   } finally { busy = false; }
 }
-
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
 setInterval(() => {
   const typing = document.activeElement && /TEXTAREA|INPUT|SELECT/.test(document.activeElement.tagName);
-  if (KEY && data && !document.hidden && !typing) load();
+  if (KEY && data && !document.hidden && !typing && !document.querySelector('.modal')) load();
 }, 60000);
 
 if (KEY) { root.innerHTML = '<div class="empty">Loading…</div>'; load(true); } else gate();
