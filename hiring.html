@@ -68,6 +68,10 @@
   .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--accent); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-size: 14px; max-width: calc(100% - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); display: none; z-index: 10; }
   .empty { text-align: center; color: var(--muted); padding: 30px 0; }
   .warn { background: var(--amberbg); color: var(--amber); border-radius: 12px; padding: 10px 14px; font-size: 13px; margin-top: 12px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 20; }
+  .modal .box { background: var(--card); color: var(--ink); border-radius: 16px; padding: 20px; max-width: 380px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+  .modal .box p { margin: 0 0 16px; font-size: 16px; line-height: 1.4; }
+  .modal .row { display: flex; gap: 10px; justify-content: flex-end; }
 </style>
 </head>
 <body>
@@ -112,6 +116,20 @@ async function call(fn, ...args) {
   const j = await r.json().catch(() => ({ ok: false, error: 'Server error. Try again.' }));
   if (!j.ok) throw new Error(j.error || 'Something went wrong.');
   return j.data;
+}
+// In-page "Are you sure?" box (browser pop-ups can be blocked)
+function ask(msg, yes) {
+  return new Promise(resolve => {
+    const m = document.createElement('div');
+    m.className = 'modal';
+    m.innerHTML = `<div class="box" role="dialog" aria-modal="true"><p>${esc(msg)}</p>
+      <div class="row"><button class="btn" data-r="0">Cancel</button><button class="btn pri" data-r="1">${esc(yes || 'Yes, send')}</button></div></div>`;
+    const done = v => { m.remove(); resolve(v); };
+    m.onclick = e => { if (e.target === m) done(false); };
+    m.querySelectorAll('[data-r]').forEach(b => b.onclick = () => done(b.dataset.r === '1'));
+    document.body.appendChild(m);
+    m.querySelector('[data-r="1"]').focus();
+  });
 }
 let toastT;
 function toast(msg) {
@@ -170,7 +188,7 @@ function render() {
       <button class="btn pri" id="inviteAll">✉️ Invite all ${toInvite}</button></div>` : '';
   const ia = document.getElementById('inviteAll');
   if (ia) ia.onclick = async () => {
-    if (!confirm(`Send the interview invite email to ${toInvite} candidate(s)?`)) return;
+    if (!(await ask(`Send the interview invite email to ${toInvite} candidate(s)?`))) return;
     ia.disabled = true; ia.textContent = 'Sending…';
     try {
       const r = await call('hiringAction', KEY, '', 'inviteAll', {});
@@ -263,19 +281,19 @@ function renderList() {
 async function act(c, a, btn, card) {
   const sel = card.querySelector('select[data-role]');
   const role = sel ? sel.value : undefined;
-  let action, opts = {}, ask = null;
-  if (a === 'invite') { action = 'invite'; ask = `Send the interview invite email to ${c.name}?`; }
+  let action, opts = {}, question = null, yesLabel;
+  if (a === 'invite') { action = 'invite'; question = `Send the interview invite email to ${c.name}?`; }
   else if (a === 'interviewed') { action = 'status'; opts.status = 'Interviewed'; }
   else if (a === 'select') { action = 'status'; opts.status = 'Selected'; if (role !== undefined) opts.role = role; }
   else if (a === 'offer') {
     if (!role && !c.role) { toast('Choose a role first.'); return; }
     action = 'offer'; if (role) opts.role = role;
-    ask = `Send the job offer to ${c.name} as ${role || c.role}?`;
+    question = `Send the job offer to ${c.name} as ${role || c.role}?`;
   }
-  else if (a === 'reject') { action = 'reject'; ask = `Reject ${c.name}? They will get a polite "not this time" email.`; }
+  else if (a === 'reject') { action = 'reject'; question = `Reject ${c.name}? They will get a polite "not this time" email.`; yesLabel = 'Yes, reject'; }
   else if (a === 'review') { action = 'status'; opts.status = 'Review'; }
   else if (a === 'notes') { action = 'save'; opts.notes = card.querySelector('textarea[data-notes]').value; }
-  if (ask && !confirm(ask)) return;
+  if (question && !(await ask(question, yesLabel))) return;
   const old = btn.textContent; btn.disabled = true; btn.textContent = 'Saving…';
   try {
     const updated = await call('hiringAction', KEY, c.id, action, opts);
