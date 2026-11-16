@@ -3,13 +3,261 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Apply – Event Staff</title>
-<meta http-equiv="refresh" content="0; url=https://docs.google.com/forms/d/e/1FAIpQLSdqpaw8xra6VTLoYAQGPMZHHdlB8FHPlaMHQqLWxyOcYfwIJw/viewform">
-<style>body{font-family:-apple-system,system-ui,sans-serif;text-align:center;padding:60px 16px;color:#111827;background:#f4f5f7}a{color:#15803d;font-weight:600}</style>
+<title>Apply – ADJM Event Staff</title>
+<style>
+  :root { --brand: #2583C5; --brand2: #1b6aa3; --ink: #0f172a; --muted: #64748b; --line: #dbe3ec; --bg: #f2f6fa; --card: #fff;
+    --ok: #15803d; --okbg: #dcfce7; --bad: #b91c1c; --badbg: #fee2e2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); font-size: 16px; }
+  .banner { background: #fff; border-bottom: 4px solid var(--brand); }
+  .banner .in { max-width: 680px; margin: 0 auto; padding: 18px 16px 20px; }
+  .banner img { height: 40px; display: block; }
+  .banner h1 { margin: 16px 0 4px; font-size: clamp(26px, 6vw, 34px); line-height: 1.15; }
+  .banner .sub { color: var(--muted); margin: 0; }
+  .banner .pill { display: inline-block; margin-top: 12px; background: var(--brand); color: #fff; padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+  main { max-width: 680px; margin: 0 auto; padding: 16px 16px 60px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 16px; margin-bottom: 14px; }
+  .card h2 { margin: 0 0 4px; font-size: 18px; }
+  .card .hint { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  label.f { display: block; font-weight: 600; margin: 14px 0 6px; }
+  label.f:first-of-type { margin-top: 6px; }
+  .req { color: var(--bad); }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=date], textarea, select {
+    width: 100%; font: inherit; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid var(--brand); outline-offset: 0; border-color: var(--brand); }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opts label { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; cursor: pointer; background: #fff; }
+  .opts.col { flex-direction: column; }
+  .opts input { accent-color: var(--brand); width: 18px; height: 18px; margin: 0; }
+  .opts label:has(input:checked) { border-color: var(--brand); background: #eaf4fb; }
+  .doc { border: 1px dashed #b8c7d6; border-radius: 12px; padding: 12px; margin-top: 12px; }
+  .doc .top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .doc b { font-size: 15px; }
+  .doc .st { font-size: 13px; color: var(--muted); }
+  .doc .st.ok { color: var(--ok); font-weight: 600; }
+  .doc input[type=file] { margin-top: 10px; width: 100%; font-size: 14px; }
+  .doc img.prev { display: block; max-height: 110px; margin-top: 8px; border-radius: 8px; border: 1px solid var(--line); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+  .warn { font-size: 13px; color: var(--bad); margin-top: 6px; }
+  button.go { width: 100%; border: 0; background: var(--brand); color: #fff; font: inherit; font-weight: 700; font-size: 17px; padding: 15px; border-radius: 12px; cursor: pointer; }
+  button.go:disabled { opacity: .6; cursor: wait; }
+  .msg { padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; }
+  .msg.err { background: var(--badbg); color: var(--bad); }
+  .done { text-align: center; padding: 36px 18px; }
+  .done .big { font-size: 46px; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--muted); }
+  .consent input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--brand); flex: none; }
+  .hide { display: none !important; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 18px; }
+</style>
 </head>
 <body>
-<p>Opening the application form…</p>
-<p><a href="https://docs.google.com/forms/d/e/1FAIpQLSdqpaw8xra6VTLoYAQGPMZHHdlB8FHPlaMHQqLWxyOcYfwIJw/viewform">Tap here if it doesn't open</a></p>
-<script>location.replace('https://docs.google.com/forms/d/e/1FAIpQLSdqpaw8xra6VTLoYAQGPMZHHdlB8FHPlaMHQqLWxyOcYfwIJw/viewform');</script>
+<div class="banner"><div class="in">
+  <img src="../evento-logo.svg" alt="Evento Solutions">
+  <h1>ADJM — Event Staff Recruitment</h1>
+  <p class="sub">7–10 December 2026 · Al Maryah Island, Abu Dhabi</p>
+  <span class="pill">WE'RE HIRING</span>
+</div></div>
+
+<main>
+  <div id="formWrap">
+  <div id="err" class="msg err hide"></div>
+  <form id="f" novalidate>
+    <div class="card">
+      <h2>About you</h2>
+      <p class="hint">Fields marked <span class="req">*</span> are required. Takes about 5 minutes.</p>
+      <label class="f" for="name">Full name (as on passport) <span class="req">*</span></label>
+      <input type="text" id="name" autocomplete="name" required>
+      <label class="f" for="email">Email address <span class="req">*</span></label>
+      <input type="email" id="email" autocomplete="email" required>
+      <label class="f" for="phone">Mobile / WhatsApp number <span class="req">*</span></label>
+      <input type="tel" id="phone" autocomplete="tel" placeholder="+971 50 123 4567" required>
+      <div class="grid2">
+        <div><label class="f" for="age">Age <span class="req">*</span></label><input type="number" id="age" min="14" max="80" inputmode="numeric" required></div>
+        <div><label class="f" for="nationality">Nationality <span class="req">*</span></label><input type="text" id="nationality" required></div>
+      </div>
+      <label class="f">Are you currently living in the UAE? <span class="req">*</span></label>
+      <div class="opts" data-name="inUae" data-type="radio" data-opts="Yes|No"></div>
+      <label class="f">Visa / work status <span class="req">*</span></label>
+      <div class="opts col" data-name="visa" data-type="radio" data-opts="UAE / GCC national|Residence visa that allows me to work (own sponsor / Golden / freelance permit)|Family-sponsored residence visa|Student visa|Visit / tourist visa|Other"></div>
+    </div>
+
+    <div class="card">
+      <h2>Documents</h2>
+      <p class="hint">All documents are required. Upload a clear photo or PDF. Passport, Emirates ID and visa must be valid until at least <b>10 December 2026</b>.</p>
+
+      <div class="doc" data-doc="photo"><div class="top"><b>Passport-size photo <span class="req">*</span></b><span class="st">Not added</span></div>
+        <input type="file" accept="image/*"></div>
+
+      <div class="doc" data-doc="passport"><div class="top"><b>Passport copy <span class="req">*</span></b><span class="st">Not added</span></div>
+        <input type="file" accept="image/*,application/pdf">
+        <label class="f" for="passportExp">Passport expiry date <span class="req">*</span></label><input type="date" id="passportExp" class="exp"></div>
+
+      <div class="doc" data-doc="eid"><div class="top"><b>Emirates ID (front &amp; back) <span class="req">*</span></b><span class="st">Not added</span></div>
+        <input type="file" accept="image/*,application/pdf">
+        <label class="f" for="eidExp">Emirates ID expiry date <span class="req">*</span></label><input type="date" id="eidExp" class="exp"></div>
+
+      <div class="doc" data-doc="visa" id="visaDoc"><div class="top"><b>Visa page <span class="req">*</span></b><span class="st">Not added</span></div>
+        <input type="file" accept="image/*,application/pdf">
+        <label class="f" for="visaExp">Visa expiry date <span class="req">*</span></label><input type="date" id="visaExp" class="exp"></div>
+    </div>
+
+    <div class="card">
+      <h2>Experience</h2>
+      <label class="f">Have you worked at Abu Dhabi Finance Week events before? <span class="req">*</span></label>
+      <div class="opts" data-name="adfw" data-type="radio" data-opts="Yes|No"></div>
+      <label class="f">Have you worked at a finance event (conference, summit, forum)? <span class="req">*</span></label>
+      <div class="opts" data-name="finance" data-type="radio" data-opts="Yes|No"></div>
+      <label class="f">How many events have you worked at? <span class="req">*</span></label>
+      <div class="opts" data-name="experience" data-type="radio" data-opts="None|1–2 events|3–5 events|6+ events"></div>
+      <label class="f" for="expDetails">Tell us about your experience <span class="req">*</span></label>
+      <textarea id="expDetails" placeholder="Events, roles, year — e.g. Registration desk, ADIPEC 2025" required></textarea>
+      <label class="f" for="cv">LinkedIn or CV link (optional)</label>
+      <input type="text" id="cv" inputmode="url">
+    </div>
+
+    <div class="card">
+      <h2>Role &amp; availability</h2>
+      <label class="f">Which roles are you interested in? <span class="req">*</span></label>
+      <div class="opts col" data-name="roles" data-type="checkbox" data-opts="Registration / Front Desk|Usher / Hall Staff|VIP Hospitality|Information Desk|Runner / Logistics"></div>
+      <label class="f">Which event days are you available? <span class="req">*</span></label>
+      <div class="opts" data-name="days" data-type="checkbox" data-opts="Day 1|Day 2|Day 3|Day 4" data-labels="Mon 7 Dec|Tue 8 Dec|Wed 9 Dec|Thu 10 Dec"></div>
+      <label class="f">Can you attend a short training session one day before the event? <span class="req">*</span></label>
+      <div class="opts" data-name="training" data-type="radio" data-opts="Yes|No"></div>
+      <label class="f">Languages you speak <span class="req">*</span></label>
+      <div class="opts" data-name="langs" data-type="checkbox" data-opts="English|Arabic|Hindi / Urdu|French|Russian|Mandarin|Tagalog"></div>
+      <input type="text" id="langOther" placeholder="Other languages (optional)" style="margin-top:8px">
+      <label class="f">English level <span class="req">*</span></label>
+      <div class="opts" data-name="english" data-type="radio" data-opts="1|2|3|4|5" data-labels="1 Basic|2|3|4|5 Fluent"></div>
+      <label class="f" for="about">Anything else we should know? (optional)</label>
+      <textarea id="about"></textarea>
+    </div>
+
+    <div class="card">
+      <label class="consent"><input type="checkbox" id="consent"> <span>I confirm the information and documents are genuine, and I agree that Evento Solutions may store them to process my application for this event.</span></label>
+    </div>
+
+    <button class="go" id="go" type="submit">Submit application</button>
+  </form>
+  </div>
+
+  <div id="done" class="card done hide">
+    <div class="big">✅</div>
+    <h2>Application received</h2>
+    <p>Thank you! Your reference is <b id="ref"></b>.</p>
+    <p class="hint">If you are shortlisted, we will email you a link to book a short online interview.</p>
+  </div>
+  <footer>Evento Solutions · Event staffing</footer>
+</main>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbxBbDeQNsPQRHerWBSaQrDr7QA8hmIEns7xrOvIaFcmk7IOkk_IbLTGSFa1erwR-A4/exec';
+const VALID_UNTIL = '2026-12-10';
+const NATIONAL = 'UAE / GCC national';
+const MAX_PDF_MB = 4;
+const $ = id => document.getElementById(id);
+const files = {};
+
+// build radio / checkbox groups
+document.querySelectorAll('.opts[data-name]').forEach(box => {
+  const opts = box.dataset.opts.split('|'), labels = (box.dataset.labels || box.dataset.opts).split('|');
+  box.innerHTML = opts.map((v, i) => `<label><input type="${box.dataset.type}" name="${box.dataset.name}" value="${v.replace(/"/g, '&quot;')}"> ${labels[i]}</label>`).join('');
+});
+const pick = n => [...document.querySelectorAll(`input[name="${n}"]:checked`)].map(i => i.value);
+
+// visa section hidden for UAE / GCC nationals
+function syncVisa() { $('visaDoc').classList.toggle('hide', pick('visa')[0] === NATIONAL); }
+document.querySelectorAll('input[name="visa"]').forEach(i => i.addEventListener('change', syncVisa));
+
+// expiry warnings
+document.querySelectorAll('input.exp').forEach(inp => inp.addEventListener('change', () => {
+  let w = inp.nextElementSibling;
+  if (!w || !w.classList.contains('warn')) { w = document.createElement('div'); w.className = 'warn'; inp.after(w); }
+  w.textContent = inp.value && inp.value < VALID_UNTIL ? 'This document expires before the event (10 Dec 2026). Please renew it before applying.' : '';
+}));
+
+// files: images are resized to keep uploads small; PDFs are sent as they are
+function readAsDataURL(file) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+async function shrink(file) {
+  const url = await readAsDataURL(file);
+  const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('bad image')); i.src = url; });
+  const max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.82);
+}
+document.querySelectorAll('.doc').forEach(box => {
+  const key = box.dataset.doc, inp = box.querySelector('input[type=file]'), st = box.querySelector('.st');
+  inp.addEventListener('change', async () => {
+    delete files[key];
+    const old = box.querySelector('img.prev'); if (old) old.remove();
+    const file = inp.files[0];
+    if (!file) { st.textContent = 'Not added'; st.className = 'st'; return; }
+    st.textContent = 'Preparing…'; st.className = 'st';
+    try {
+      let dataUrl, type;
+      if (file.type === 'application/pdf') {
+        if (file.size > MAX_PDF_MB * 1048576) throw new Error(`PDF is larger than ${MAX_PDF_MB} MB`);
+        dataUrl = await readAsDataURL(file); type = 'application/pdf';
+      } else {
+        dataUrl = await shrink(file); type = 'image/jpeg';
+        const im = document.createElement('img'); im.className = 'prev'; im.src = dataUrl; im.alt = ''; box.querySelector('.top').after(im);
+      }
+      files[key] = { type: type, data: dataUrl.split(',')[1] };
+      st.textContent = '✓ Added'; st.className = 'st ok';
+    } catch (e) {
+      inp.value = ''; st.textContent = 'Could not read this file — try a photo (JPG/PNG) or PDF'; st.className = 'st';
+    }
+  });
+});
+
+function fail(msg) { const e = $('err'); e.textContent = msg; e.classList.remove('hide'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+$('f').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  $('err').classList.add('hide');
+  const v = id => $(id).value.trim();
+  const national = pick('visa')[0] === NATIONAL;
+  const langs = pick('langs').concat(v('langOther') ? v('langOther').split(/[,/]/).map(s => s.trim()).filter(Boolean) : []);
+  const p = {
+    name: v('name'), email: v('email'), phone: v('phone'), age: v('age'), nationality: v('nationality'),
+    inUae: pick('inUae')[0], visa: pick('visa')[0], roles: pick('roles'), langs: langs, english: pick('english')[0],
+    experience: pick('experience')[0], days: pick('days'), training: pick('training')[0], cv: v('cv'), about: v('about'),
+    adfw: pick('adfw')[0], finance: pick('finance')[0], expDetails: v('expDetails'),
+    passportExp: v('passportExp'), eidExp: v('eidExp'), visaExp: national ? '' : v('visaExp'), files: {},
+  };
+  const need = [
+    [p.name, 'Full name'], [p.email, 'Email address'], [p.phone, 'Mobile number'], [p.age, 'Age'], [p.nationality, 'Nationality'],
+    [p.inUae, 'Living in the UAE'], [p.visa, 'Visa / work status'],
+    [files.photo, 'Passport-size photo'], [files.passport, 'Passport copy'], [p.passportExp, 'Passport expiry date'],
+    [files.eid, 'Emirates ID'], [p.eidExp, 'Emirates ID expiry date'],
+    [national || files.visa, 'Visa page'], [national || p.visaExp, 'Visa expiry date'],
+    [p.adfw, 'Worked at Abu Dhabi Finance Week'], [p.finance, 'Worked at a finance event'], [p.experience, 'Number of events'],
+    [p.expDetails, 'Your experience'], [p.roles.length, 'Roles'], [p.days.length, 'Event days'], [p.training, 'Training session'],
+    [p.langs.length, 'Languages'], [p.english, 'English level'],
+  ].filter(([val]) => !val).map(([, l]) => l);
+  if (need.length) return fail('Please complete: ' + need.join(', ') + '.');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) return fail('Please enter a valid email address.');
+  if (!$('consent').checked) return fail('Please tick the confirmation box at the end of the form.');
+  ['photo', 'passport', 'eid'].concat(national ? [] : ['visa']).forEach(k => { p.files[k] = files[k]; });
+
+  const btn = $('go'); btn.disabled = true; btn.textContent = 'Uploading… please keep this page open';
+  try {
+    const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: 'apply', args: [p] }), redirect: 'follow' });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Something went wrong');
+    $('ref').textContent = j.data.id;
+    $('formWrap').classList.add('hide'); $('done').classList.remove('hide'); window.scrollTo(0, 0);
+  } catch (e) {
+    fail(String((e && e.message) || e).replace(/^Error:\s*/, '') + ' — please try again.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Submit application';
+  }
+});
+</script>
 </body>
 </html>
