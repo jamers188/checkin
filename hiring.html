@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>ADFW Staffing Dashboard</title>
+<title>ADJM Staffing Dashboard</title>
 <style>
   :root {
     --bg: #eef1f5; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --soft: #f8fafc;
@@ -161,7 +161,7 @@
 <div class="drawer" id="drawer"></div>
 <div class="toast" id="toast"></div>
 <script>
-// Google Apps Script web app behind this page (reads/writes your ADFW Hiring sheet)
+// Google Apps Script web app behind this page (reads/writes the hiring sheet)
 const API = 'https://script.google.com/macros/s/AKfycbxBbDeQNsPQRHerWBSaQrDr7QA8hmIEns7xrOvIaFcmk7IOkk_IbLTGSFa1erwR-A4/exec';
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -194,6 +194,11 @@ const daysOf = c => list(c.days).length;
 const expKey = c => (/6\+/.test(c.experience) ? '6+ events' : /3/.test(c.experience) ? '3–5 events' : /1/.test(c.experience) ? '1–2 events' : 'None');
 const scoreBand = c => c.score >= 80 ? '80+' : c.score >= 60 ? '60–79' : c.score >= 40 ? '40–59' : 'Under 40';
 const visaOk = c => !/visa|permit/i.test(c.flags);
+// documents: Valid / Expired / Missing / Not provided (old Google Form applications)
+const docKey = c => !c.docsStatus || c.docsStatus === 'Not provided' ? 'none' : c.docsStatus === 'Valid' ? 'ok' : /Expired/i.test(c.docsStatus) ? 'expired' : 'missing';
+const DOC_LABEL = { ok: 'Valid', expired: 'Expired', missing: 'Missing', none: 'Not provided' };
+const DOC_PILL = { ok: 'p-g', expired: 'p-r', missing: 'p-y', none: 'p-n' };
+const docPill = c => `<span class="pill ${DOC_PILL[docKey(c)]}" title="${esc(c.docsStatus || 'No documents')}">${DOC_LABEL[docKey(c)]}</span>`;
 async function call(fn, ...args) {
   let r;
   try {
@@ -240,6 +245,9 @@ function groups() {
     { id: 'score', title: 'Score', opts: ['80+', '60–79', '40–59', 'Under 40'].map(x => [x, x]), test: (c, v) => scoreBand(c) === v },
     { id: 'intv', title: 'Interview', opts: [['booked', 'Booked'], ['none', 'Not booked']], test: (c, v) => v === 'booked' ? !!c.interview : !c.interview },
     { id: 'visa', title: 'Visa', opts: [['ok', 'Work-ready'], ['check', 'Needs checking']], test: (c, v) => v === 'ok' ? visaOk(c) : !visaOk(c) },
+    { id: 'docs', title: 'Documents', opts: ['ok', 'expired', 'missing', 'none'].map(k => [k, DOC_LABEL[k]]), test: (c, v) => docKey(c) === v },
+    { id: 'adfw', title: 'Worked ADFW before', opts: [['Yes', 'Yes'], ['No', 'No']], test: (c, v) => c.adfw === v },
+    { id: 'fin', title: 'Finance events', opts: [['Yes', 'Yes'], ['No', 'No']], test: (c, v) => c.finance === v },
   ];
 }
 function passes(c, skip) {
@@ -264,7 +272,7 @@ function toggle(group, val, only) {
 // ---------- shell ----------
 function gate(msg) {
   root.innerHTML = `<div class="gate">
-    <div class="sub">Abu Dhabi Finance Week</div><h2 style="margin:4px 0 0">Staffing dashboard</h2>
+    <img src="evento-logo.svg" alt="Evento Solutions" style="height:32px"><div class="sub" style="margin-top:10px">ADJM</div><h2 style="margin:4px 0 0">Staffing dashboard</h2>
     <p class="sub">Enter the admin key to open the dashboard.</p>
     <form id="g"><input id="k" type="password" placeholder="Admin key" autocomplete="current-password" required>
     <button class="btn pri" style="width:100%;margin-top:10px;padding:10px">Open</button></form>
@@ -281,7 +289,7 @@ function render() {
   const scrollY = window.scrollY;
   root.innerHTML = `
     <div class="topbar">
-      <h1>ADFW Staffing — 2026</h1>
+      <h1><img src="evento-logo.svg" alt="Evento Solutions" style="height:22px;vertical-align:-4px;margin-right:10px;background:#fff;border-radius:6px;padding:3px 6px">ADJM Staffing — 2026</h1>
       <div class="tabs">
         <button class="tab ${tab === 'dash' ? 'on' : ''}" data-tab="dash">Dashboard</button>
         <button class="tab ${tab === 'intv' ? 'on' : ''}" data-tab="intv">Interviews${upcoming ? ` (${upcoming})` : ''}</button>
@@ -337,6 +345,8 @@ function dashView() {
     ['3+ events experience', cs.filter(c => /3|6\+/.test(c.experience)).length],
     ['Can attend training', cs.filter(c => c.training === 'Yes').length],
     ['Work-ready visa', cs.filter(visaOk).length],
+    ['Documents valid', cs.filter(c => docKey(c) === 'ok').length],
+    ['Worked ADFW before', cs.filter(c => c.adfw === 'Yes').length],
   ].map(([l, v]) => `<div class="pct"><span>${esc(l)}</span><span class="t"><i style="width:${v / n * 100}%"></i></span><b>${Math.round(v / n * 100)}%</b></div>`).join('');
 
   const rows = filtered();
@@ -383,7 +393,7 @@ function nextAction(c) {
 const COLS = [
   ['id', 'ID'], ['name', 'Name'], ['score', 'Score'], ['status', 'Stage'], ['roles', 'Wants'], ['role', 'Assigned'],
   ['experience', 'Experience'], ['english', 'English'], ['days', 'Days'], ['languages', 'Languages'],
-  ['nationality', 'Nationality'], ['interview', 'Interview'], ['flags', 'Flags'], ['', 'Action'],
+  ['nationality', 'Nationality'], ['docsStatus', 'Documents'], ['interview', 'Interview'], ['flags', 'Flags'], ['', 'Action'],
 ];
 function sortVal(c, k) {
   if (k === 'score') return c.score;
@@ -391,6 +401,7 @@ function sortVal(c, k) {
   if (k === 'days') return daysOf(c);
   if (k === 'status') return STAGES.indexOf(stageOf(c));
   if (k === 'interview') return c.interviewSort || '9999';
+  if (k === 'docsStatus') return ['expired', 'missing', 'none', 'ok'].indexOf(docKey(c));
   return String(c[k] || '').toLowerCase();
 }
 function tableView(rows) {
@@ -412,6 +423,7 @@ function tableView(rows) {
       <td>${daysOf(c)}/${data.eventDays.length}</td>
       <td>${esc(c.languages || '—')}</td>
       <td>${esc(c.nationality || '—')}</td>
+      <td>${docPill(c)}</td>
       <td>${c.interview ? `<span class="pill ${c.interviewPast ? 'p-n' : 'p-t'}">${esc(c.interview)}</span>` : '<span class="sub">—</span>'}</td>
       <td>${c.flags ? `<span class="flag">⚠ ${esc(c.flags)}</span>` : ''}</td>
       <td>${nextAction(c)}</td>
@@ -424,7 +436,7 @@ function tableView(rows) {
       <table><thead><tr>${head}</tr></thead>
       <tbody>${body || `<tr><td colspan="${COLS.length}" class="empty">Nobody matches these filters.</td></tr>`}</tbody>
       <tfoot><tr><td colspan="2">Total · ${rows.length} candidates</td><td>avg ${avg}</td>
-        <td>${rows.filter(c => c.status === 'Accepted').length} hired</td><td colspan="7"></td>
+        <td>${rows.filter(c => c.status === 'Accepted').length} hired</td><td colspan="8"></td>
         <td>${rows.filter(c => c.interview && !c.interviewPast).length} booked</td><td colspan="2"></td></tr></tfoot>
       </table>
     </div>`;
@@ -449,7 +461,7 @@ function interviewsView() {
   return `<div class="main" style="grid-template-columns:1fr">
     <section>
       <div class="card" style="margin-bottom:12px"><h3>Interview bookings</h3>
-        <div class="sub">From your Google Calendar booking page "ADFW Event Staff Interview". Times are Dubai time.</div></div>
+        <div class="sub">From your Google Calendar interview booking page. Times are Dubai time.</div></div>
       ${dayHtml || '<div class="empty">No interviews booked yet. When candidates book a slot from their invite email, it shows up here.</div>'}
       ${invitedNoBooking.length ? `<div class="card" style="margin-top:12px"><h3>Invited but not booked yet (${invitedNoBooking.length})</h3>
         ${invitedNoBooking.map(c => `<div class="slot"><div class="sub">invited ${esc(c.inviteSent)}</div><div><div class="nm">${esc(c.name)}</div><div class="sub">${esc(c.email)}</div></div>
@@ -472,7 +484,9 @@ function openDrawer(id) {
   };
   d.innerHTML = `<button class="btn x" id="dClose">✕</button>
     <div class="sub">${esc(c.id)} · applied ${esc(c.submitted)}</div>
-    <h2>${esc(c.name)}</h2>
+    <div style="display:flex;gap:12px;align-items:center">
+      ${c.photo ? `<a href="${esc(c.photo)}" target="_blank" rel="noopener"><img src="${esc(driveThumb(c.photo))}" alt="" style="width:64px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" onerror="this.style.display='none'"></a>` : ''}
+      <h2 style="margin:0">${esc(c.name)}</h2></div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:6px"><span class="pill p-${st.g}">${esc(st.label)}</span><span class="score ${c.score >= 80 ? 's-hi' : c.score >= 60 ? 's-mid' : 's-lo'}">Score ${c.score}</span>
       ${c.interview ? `<span class="pill p-t">Interview ${esc(c.interview)}</span>` : ''}</div>
     ${c.flags ? `<div class="flag" style="margin-top:8px">⚠ ${esc(c.flags)}</div>` : ''}
@@ -486,6 +500,7 @@ function openDrawer(id) {
       ${can.reject ? '<button class="btn danger" data-dact="reject">Reject</button>' : ''}
     </div>
     <div>${roleSel}</div>
+    ${docsBox(c)}
     <div class="kv">
       <div>Email</div><div>${esc(c.email)}</div><div>Phone</div><div>${esc(c.phone)}</div>
       <div>Age</div><div>${esc(c.age || '—')}</div><div>Nationality</div><div>${esc(c.nationality || '—')}</div>
@@ -493,6 +508,8 @@ function openDrawer(id) {
       <div>Wants</div><div>${esc(c.roles)}</div><div>Experience</div><div>${esc(c.experience)}</div>
       <div>English</div><div>${esc(c.english)}/5</div><div>Languages</div><div>${esc(c.languages)}</div>
       <div>Days</div><div>${esc(c.days)}</div><div>Training</div><div>${esc(c.training)}</div>
+      <div>Worked ADFW before</div><div>${esc(c.adfw || '—')}</div><div>Finance events</div><div>${esc(c.finance || '—')}</div>
+      <div>Experience details</div><div>${esc(c.expDetails || '—')}</div>
       <div>CV / LinkedIn</div><div>${c.cv ? `<a href="${esc(/^https?:/i.test(c.cv) ? c.cv : 'https://' + c.cv)}" target="_blank" rel="noopener">${esc(c.cv)}</a>` : '—'}</div>
       <div>About</div><div>${esc(c.about || '—')}</div>
       <div>Invite sent</div><div>${esc(c.inviteSent || '—')}</div><div>Offer sent</div><div>${esc(c.offerSent || '—')}</div>
@@ -505,6 +522,23 @@ function openDrawer(id) {
   document.getElementById('dClose').onclick = closeDrawer;
   d.querySelectorAll('[data-dact]').forEach(b => b.onclick = () => act(c, b.dataset.dact, b, true));
   document.querySelectorAll('tbody tr').forEach(tr => tr.classList.toggle('sel', tr.dataset.row === id));
+}
+function driveThumb(url) { const m = String(url).match(/\/d\/([\w-]+)/); return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w200` : url; }
+function docsBox(c) {
+  const exp = d => !d ? '<span class="sub">—</span>' : d < c.docsValidUntil ? `<b style="color:var(--red)">${esc(d)} · expired before event</b>` : `<span style="color:var(--green)">${esc(d)} ✓</span>`;
+  const link = (u, l) => u ? `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">📎 ${l}</a>` : `<span class="btn" style="opacity:.5">${l} — missing</span>`;
+  const national = /national/i.test(c.visa);
+  return `<div class="card" style="margin:12px 0;padding:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b>Documents</b>${docPill(c)}</div>
+    ${docKey(c) === 'none' ? '<div class="sub">This person applied before document upload was added.</div>' : `
+    <div class="kv" style="margin:0 0 10px">
+      <div>Passport expiry</div><div>${exp(c.passportExp)}</div>
+      <div>Emirates ID expiry</div><div>${exp(c.eidExp)}</div>
+      <div>Visa expiry</div><div>${national ? '<span class="sub">Not needed (national)</span>' : exp(c.visaExp)}</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${link(c.photo, 'Photo')}${link(c.passportDoc, 'Passport')}${link(c.eidDoc, 'Emirates ID')}${national ? '' : link(c.visaDoc, 'Visa')}
+      ${c.folder ? `<a class="btn" href="${esc(c.folder)}" target="_blank" rel="noopener">📁 Folder</a>` : ''}</div>`}
+  </div>`;
 }
 function closeDrawer() { selected = null; document.getElementById('drawer').classList.remove('open'); document.querySelectorAll('tbody tr.sel').forEach(tr => tr.classList.remove('sel')); }
 
