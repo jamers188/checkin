@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>We're Hiring – Event Staff</title>
+<title>We're Hiring – ADJM Event Staff</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-  :root { --ink: #111827; --muted: #4b5563; --brand: #15803d; --bg: #f4f5f7; }
+  :root { --ink: #111827; --muted: #4b5563; --brand: #2583C5; --bg: #f4f5f7; }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
   .bar { max-width: 640px; margin: 0 auto; padding: 16px; display: flex; justify-content: flex-end; }
@@ -27,14 +27,16 @@
 <body>
 <div class="bar"><button onclick="window.print()">Print poster</button></div>
 <div class="poster">
+  <img src="evento-logo.svg" alt="Evento Solutions" style="height:44px;display:block;margin:0 auto 20px">
   <span class="tag">We're hiring</span>
   <h1>Event Staff</h1>
-  <p class="sub">Abu Dhabi Finance Week 2026</p>
+  <p class="sub">ADJM — Event Staff 2026</p>
   <p class="when">7–10 December · Al Maryah Island, Abu Dhabi</p>
   <p class="roles">Registration · Ushers · VIP Hospitality · Information Desk · Runners</p>
   <div id="qr"></div>
   <p class="scan">Scan to apply</p>
   <p class="link">jamers188.github.io/checkin/apply</p>
+  <p class="link" style="margin-top:10px">Have ready: passport-size photo · passport · Emirates ID · visa page</p>
 </div>
 <script>
   new QRCode(document.getElementById('qr'), { text: 'https://jamers188.github.io/checkin/apply/', width: 260, height: 260, correctLevel: QRCode.CorrectLevel.M });
