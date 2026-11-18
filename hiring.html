@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>ADJM Staffing Dashboard</title>
+<title>ADGM Staffing Dashboard</title>
 <style>
   :root {
     --bg: #eef1f5; --card: #ffffff; --ink: #0f172a; --muted: #64748b; --line: #e2e8f0; --soft: #f8fafc;
@@ -272,7 +272,7 @@ function toggle(group, val, only) {
 // ---------- shell ----------
 function gate(msg) {
   root.innerHTML = `<div class="gate">
-    <img src="evento-logo.svg" alt="Evento Solutions" style="height:32px"><div class="sub" style="margin-top:10px">ADJM</div><h2 style="margin:4px 0 0">Staffing dashboard</h2>
+    <img src="evento-logo.svg" alt="Evento Solutions" style="height:32px"><div class="sub" style="margin-top:10px">ADGM</div><h2 style="margin:4px 0 0">Staffing dashboard</h2>
     <p class="sub">Enter the admin key to open the dashboard.</p>
     <form id="g"><input id="k" type="password" placeholder="Admin key" autocomplete="current-password" required>
     <button class="btn pri" style="width:100%;margin-top:10px;padding:10px">Open</button></form>
@@ -289,7 +289,7 @@ function render() {
   const scrollY = window.scrollY;
   root.innerHTML = `
     <div class="topbar">
-      <h1><img src="evento-logo.svg" alt="Evento Solutions" style="height:22px;vertical-align:-4px;margin-right:10px;background:#fff;border-radius:6px;padding:3px 6px">ADJM Staffing — 2026</h1>
+      <h1><img src="evento-logo.svg" alt="Evento Solutions" style="height:22px;vertical-align:-4px;margin-right:10px;background:#fff;border-radius:6px;padding:3px 6px">ADGM Staffing — 2026</h1>
       <div class="tabs">
         <button class="tab ${tab === 'dash' ? 'on' : ''}" data-tab="dash">Dashboard</button>
         <button class="tab ${tab === 'intv' ? 'on' : ''}" data-tab="intv">Interviews${upcoming ? ` (${upcoming})` : ''}</button>
